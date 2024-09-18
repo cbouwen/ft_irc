@@ -1,4 +1,4 @@
-NAME = ft_irc
+NAME = ircserv
 FLAGS = -Wall -Werror -Wextra -std=c++98 -g
 CC = c++
 RM = rm -rf
