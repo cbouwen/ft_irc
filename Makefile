@@ -7,7 +7,7 @@ SRC_MAIN = main.cpp
 SRC_CHANNEL = $(addprefix ./channel/, )
 SRC_CLIENT = $(addprefix ./client/, ) 
 SRC_COMMANDS = $(addprefix ./commands/, )
-SRC_SERVER = $(addprefix ./server/, )
+SRC_SERVER = $(addprefix ./server/, server.cpp)
 
 #Add header files here so they also re-compile
 #INC = ft_irc.hpp
