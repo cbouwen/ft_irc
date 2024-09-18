@@ -9,6 +9,8 @@ SRC_CLIENT = $(addprefix ./client/, )
 SRC_COMMANDS = $(addprefix ./commands/, )
 SRC_SERVER = $(addprefix ./server/, )
 
+#Add header files here so they also re-compile
+#INC = ft_irc.hpp
 
 SRC = $(SRC_MAIN) $(SRC_CHANNEL) $(SRC_CLIENT) $(SRC_COMMANDS) $(SRC_SERVER)
 OBJ = $(SRC:.cpp=.o)
@@ -16,7 +18,7 @@ OBJ = $(SRC:.cpp=.o)
 
 all: $(NAME)
 
-%.o: %.cpp
+%.o: %.cpp #$(INC))
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(NAME): $(OBJ)
