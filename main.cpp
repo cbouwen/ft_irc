@@ -1,7 +1,10 @@
 #include "./server/Server.hpp"
+//#include "./client/Client.hpp"
 
 int	main(int argc, char** argv)
 {
+	(void)argc;
+	(void)argv;
 	Server	server;
 	try 
 	{
@@ -13,7 +16,7 @@ int	main(int argc, char** argv)
 	}	
 	catch (const std::exception& e)
 	{
-		server.closeFD();
+		server.CloseFD();
 		std::cerr << e.what() << std::endl;
 	}
 	std::cout << "Server closed. Thank you." << std::endl;

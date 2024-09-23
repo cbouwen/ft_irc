@@ -5,16 +5,15 @@ RM = rm -rf
 
 SRC_MAIN = main.cpp
 SRC_CHANNEL = $(addprefix ./channel/, )
-SRC_CLIENT = $(addprefix ./client/, ) 
+SRC_CLIENT = $(addprefix ./client/, Client.cpp ) 
 SRC_COMMANDS = $(addprefix ./commands/, )
-SRC_SERVER = $(addprefix ./server/, server.cpp)
+SRC_SERVER = $(addprefix ./server/, Server.cpp)
 
 #Add header files here so they also re-compile
 #INC = ft_irc.hpp
 
 SRC = $(SRC_MAIN) $(SRC_CHANNEL) $(SRC_CLIENT) $(SRC_COMMANDS) $(SRC_SERVER)
 OBJ = $(SRC:.cpp=.o)
-
 
 all: $(NAME)
 

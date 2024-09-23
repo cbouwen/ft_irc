@@ -6,6 +6,10 @@
 #include <sys/socket.h>
 #include <csignal> //Do we want to add this?
 #include <poll.h>
+#include <fcntl.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <cstring>
 
 #include "../client/Client.hpp"
 
@@ -14,9 +18,10 @@
 class Server
 {
     private:
-        int _port;
-        int _serverSocketFD;
-        static bool _signal;
+        int                         _port;
+        int                         _serverSocketFD;
+        static bool                 _signal;
+
         std::vector<Client>         _clients;
         std::vector<struct pollfd>  _fds;
 
@@ -26,7 +31,12 @@ class Server
 
         void    ServerInit();
         void    ServerSocket();
-        void    closeFD(); 
+
+        void    AcceptNewClient();
+        void    ReceiveNewData(int fd);
+
+        void    CloseFD();
+        void    ClearClient(int fd);
         
         static void    SignalHandler(int signum);
 
