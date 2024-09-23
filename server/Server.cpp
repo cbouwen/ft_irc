@@ -13,11 +13,24 @@ Server::~Server()
 
 }
 
+void    Server::setPort(char *argv)
+{
+    for (size_t i = 0; i < strlen(argv); i++)
+    {
+        if (!isdigit(argv[i])) 
+            throw(std::runtime_error("Port number isn't exclusively digits"));
+    }
+    int port = atoi(argv);
+    if (port < 1024 || port > 49151)
+        throw(std::runtime_error("Invalid port: Enter a number between 1024 and 49151"));
+    this->_port = port;
+}
+
 //Static function so we can call on this from everywhere
 void Server::SignalHandler(int signum)
 {
     (void)signum;
-    std::cout << "Interrupt signal detected." << std::endl;
+    std::cout << std::endl << "Interrupt signal detected." << std::endl;
     Server::_signal = true;
 }
 
@@ -74,8 +87,6 @@ void    Server::ServerSocket()
 
 void    Server::ServerInit()
 {
-    _port = 8000; //Can configure this to another port if needed. 8000 isn't occupied in DPG
-                    //maybe make the port a macro to easily find and change it?
     ServerSocket();
 
     std::cout << "Test: Server and listening socket correctly set up" << std::endl; //Change the message

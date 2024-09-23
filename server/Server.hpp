@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <cstring>
+#include <cstdlib>
 
 #include "../client/Client.hpp"
 
@@ -28,6 +29,8 @@ class Server
     public:
         Server();
         ~Server();
+
+        void    setPort(char* argv);
 
         void    ServerInit();
         void    ServerSocket();
