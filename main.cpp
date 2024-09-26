@@ -26,3 +26,4 @@ int	main(int argc, char** argv)
 	}
 	std::cout << "Server closed. Thank you." << std::endl;
 }
+// this is a test comment, we can remove this later
