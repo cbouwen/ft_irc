@@ -4,7 +4,7 @@ CC = c++
 RM = rm -rf
 
 SRC_MAIN = main.cpp
-SRC_CHANNEL = $(addprefix ./channel/, )
+SRC_CHANNEL = $(addprefix ./channel/, Channel.cpp)
 SRC_CLIENT = $(addprefix ./client/, Client.cpp ) 
 SRC_COMMANDS = $(addprefix ./commands/, )
 SRC_SERVER = $(addprefix ./server/, Server.cpp)

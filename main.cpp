@@ -7,11 +7,9 @@ int	main(int argc, char** argv)
 		std::cout << "Incorrect amount of arguments" << std::endl;
 		return 1;
 	}
-	//check valid port number ft
-	Server	server;
-//	if (argv[1] == valid)
-//		server.setPort(argv[1]); // is atoi allowed?
 	
+	Server	server;
+	server.setPassword(argv[2]);
 	try 
 	{
 		server.setPort(argv[1]);

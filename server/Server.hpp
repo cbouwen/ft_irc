@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <cstdlib>
+#include <sstream>
 
 #include "../client/Client.hpp"
 
@@ -22,6 +23,7 @@ class Server
         int                         _port;
         int                         _serverSocketFD;
         static bool                 _signal;
+        std::string                 _password;
 
         std::vector<Client>         _clients;
         std::vector<struct pollfd>  _fds;
@@ -30,6 +32,8 @@ class Server
         Server();
         ~Server();
 
+        const std::string&  getPassword() const;
+        void    setPassword(char* password);
         void    setPort(char* argv);
 
         void    ServerInit();
@@ -37,6 +41,10 @@ class Server
 
         void    AcceptNewClient();
         void    ReceiveNewData(int fd);
+        //test
+        std::string receiveUserData(int &fd);
+        std::string readUserData(int &fd);
+
 
         void    CloseFD();
         void    ClearClient(int fd);

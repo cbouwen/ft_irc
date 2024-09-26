@@ -13,6 +13,16 @@ Server::~Server()
 
 }
 
+void    Server::setPassword(char* password)
+{
+    _password = password;
+}
+
+const std::string&  Server::getPassword() const
+{
+    return _password;
+}
+
 void    Server::setPort(char *argv)
 {
     for (size_t i = 0; i < strlen(argv); i++)
@@ -39,7 +49,7 @@ void    Server::CloseFD()
     for (size_t i = 0; i < _clients.size(); i++)
     {
         std::cout << "Client<" << _clients[i].getFD() << "> disconnected." << std::endl;
-        close(_clients[i].getFD());
+        close(_clients[i].getFD());//check comment below in ClearClient
     }
     if (_serverSocketFD != -1)
     {
@@ -53,7 +63,7 @@ void    Server::ClearClient(int fd)
     for (size_t i = 0; i < _fds.size(); i++)
     {
         if (_fds[i].fd == fd)
-            _clients.erase(_clients.begin() + i);
+            _clients.erase(_clients.begin() + i);//Client disconnects correctly but on server shutdown, clients disconnects again? Look into it
         break;
     }
 }
@@ -117,14 +127,15 @@ void    Server::AcceptNewClient()
     struct pollfd       newPoll;
     socklen_t           len = sizeof(clientAddr);
     int                 incFD;
-    
+    std::string         userData;
+
     incFD = accept(_serverSocketFD, (sockaddr *)&(clientAddr), &len);
     if (incFD == -1)
     {
         std::cout << "Client Accept failed" << std::endl;
         return ;
     }
-    if (fcntl(incFD, F_SETFL, O_NONBLOCK) == -1)
+    if (fcntl(incFD, F_SETFL, O_NONBLOCK) == -1) //This is for MACOS only. We can remove this. I have no idea if it has any influence on any aspect of the program
     {
         std::cout << "fcntl() failed" << std::endl;
         return;
@@ -134,14 +145,82 @@ void    Server::AcceptNewClient()
     newPoll.events = POLLIN;
     newPoll.revents = 0;
 
+    userData = receiveUserData(newPoll.fd);
     newClient.setFD(incFD);
     newClient.setIPaddr(inet_ntoa((clientAddr.sin_addr)));
+    newClient.setUserData(userData);
+//    newClient.setUserName();
+  //  newClient.setPassword();
+    //newClient.setNickName();
+
     _clients.push_back(newClient);
     _fds.push_back(newPoll);
+
+    std::string welcomeMessage = ":serverhostname 001 " + newClient.getNickName() + " :Welcome to the IRC network, " + newClient.getNickName() + "!\r\n";
+	newClient.sendMessageToClient(welcomeMessage);
 
     std::cout << "Client <" << incFD << "> Connected" << std::endl;
 
 }
+
+
+
+
+//test
+std::string	Server::receiveUserData(int &fd)
+{
+	std::string buffer;
+	std::string str;
+	bool user_received = false;
+	size_t pos;
+	
+    while (!user_received)
+    {
+		buffer += readUserData(fd);
+
+		while ((pos = buffer.find("\r\n")) != std::string::npos)
+        {
+			str += buffer.substr(0, pos); // Extract the complete message
+			str += " ";
+			buffer.erase(0, pos + 2); // Remove the processed message
+
+			std::cout << "Current message: " << str << std::endl; //Think we can erase this yeah?
+
+			if (str.find("USER") != std::string::npos)
+            {
+				user_received = true;
+				break;
+			}
+		}
+
+		if (user_received)
+			std::cout << "Full USER command received: " << str << std::endl;
+	}
+	return str;
+}
+
+std::string Server::readUserData(int &fd)
+{
+	char buffer[1024];
+	int bytes_read = recv(fd, buffer, 1024, 0);
+	if (bytes_read == 0)
+	{
+		close(fd);
+		fd = -1;
+		std::cout << "Client disconnected" <<std::endl;
+	}
+	else
+	{
+		buffer[bytes_read] = '\0';
+		std::string msg(buffer);
+		return msg;
+	}
+	return ("");
+}
+//test
+
+
+
 
 void    Server::ReceiveNewData(int fd)
 {
