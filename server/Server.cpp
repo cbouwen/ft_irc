@@ -44,7 +44,7 @@ void Server::SignalHandler(int signum)
     Server::_signal = true;
 }
 
-void    Server::CloseFD()
+void    Server::CloseFD() //Does fd get deleted from pollfd?
 {
     for (size_t i = 0; i < _clients.size(); i++)
     {
@@ -53,7 +53,7 @@ void    Server::CloseFD()
     }
     if (_serverSocketFD != -1)
     {
-        std::cout << "Server <" << _serverSocketFD << "> disconnected" << std::endl;
+        std::cout << "Server <" << _serverSocketFD << "> disconnected" << std::endl; //this is a blank print statement. Only print on success. Change it
         close(_serverSocketFD);
     }
 }
@@ -135,7 +135,7 @@ void    Server::AcceptNewClient()
         std::cout << "Client Accept failed" << std::endl;
         return ;
     }
-    if (fcntl(incFD, F_SETFL, O_NONBLOCK) == -1) //This is for MACOS only. We can remove this. I have no idea if it has any influence on any aspect of the program
+    if (fcntl(incFD, F_SETFL, O_NONBLOCK) == -1) //This is for MACOS only. Should we remove this? I have no idea if it has any influence on any aspect of the program
     {
         std::cout << "fcntl() failed" << std::endl;
         return;
@@ -149,9 +149,11 @@ void    Server::AcceptNewClient()
     newClient.setFD(incFD);
     newClient.setIPaddr(inet_ntoa((clientAddr.sin_addr)));
     newClient.setUserData(userData);
-//    newClient.setUserName();
-  //  newClient.setPassword();
-    //newClient.setNickName();
+    if (newClient.get != this->_password)
+    {
+        close(newClient);
+        return;
+    }
 
     _clients.push_back(newClient);
     _fds.push_back(newPoll);
@@ -163,10 +165,6 @@ void    Server::AcceptNewClient()
 
 }
 
-
-
-
-//test
 std::string	Server::receiveUserData(int &fd)
 {
 	std::string buffer;
@@ -184,7 +182,7 @@ std::string	Server::receiveUserData(int &fd)
 			str += " ";
 			buffer.erase(0, pos + 2); // Remove the processed message
 
-			std::cout << "Current message: " << str << std::endl; //Think we can erase this yeah?
+			std::cout << "Current message: " << str << std::endl; //Testing: Think we can erase this yeah?
 
 			if (str.find("USER") != std::string::npos)
             {
@@ -194,7 +192,7 @@ std::string	Server::receiveUserData(int &fd)
 		}
 
 		if (user_received)
-			std::cout << "Full USER command received: " << str << std::endl;
+			std::cout << "Full USER command received: " << str << std::endl; //Testing purposes, fluff. Can let this in or remove it
 	}
 	return str;
 }
@@ -217,10 +215,6 @@ std::string Server::readUserData(int &fd)
 	}
 	return ("");
 }
-//test
-
-
-
 
 void    Server::ReceiveNewData(int fd)
 {
