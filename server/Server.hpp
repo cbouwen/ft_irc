@@ -41,7 +41,7 @@ class Server
 
         void    AcceptNewClient();
         void    ReceiveNewData(int fd);
-        //test
+        
         std::string receiveUserData(int &fd);
         std::string readUserData(int &fd);
 
