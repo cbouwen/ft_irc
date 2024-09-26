@@ -25,6 +25,11 @@ void    Client::setIPaddr(std::string IPaddr)
     _IPaddr = IPaddr;
 }
 
+const std::string   Client::getPassword() const
+{
+    return _userPassword;
+}
+
 const std::string   Client::getNickName() const
 {
     return _nickName;
@@ -50,8 +55,20 @@ void    Client::setUserData(std::string userData)
 {
 	std::vector<std::string> words = split(userData);	
 
-	while (words.front().compare("NICK") != 0)
+//Current message: CAP LS 
+//Current message: CAP LS PASS test 
+//Current message: CAP LS PASS test NICK cbouwen 
+//Current message: CAP LS PASS test NICK cbouwen USER cbouwen cbouwen localhost :Cedric Bouwen 
+//Full USER command received: CAP LS PASS test NICK cbouwen USER cbouwen cbouwen localhost :Cedric Bouwen 
+
+	if (userData.find("PASS") != std::string::npos)
+		return; 
+
+	while (words.front().compare("PASS") != 0)
 		words.erase(words.begin());
+	words.erase(words.begin());
+	_userPassword = *words.begin();
+
 	words.erase(words.begin());
 	_nickName = *words.begin();
 

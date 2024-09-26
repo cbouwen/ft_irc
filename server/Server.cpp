@@ -149,9 +149,11 @@ void    Server::AcceptNewClient()
     newClient.setFD(incFD);
     newClient.setIPaddr(inet_ntoa((clientAddr.sin_addr)));
     newClient.setUserData(userData);
-    if (newClient.get != this->_password)
+    if (newClient.getPassword() != this->_password)
     {
-        close(newClient);
+        std::string msg = "Incorrect password: " + newClient.getPassword() + "\r\n";
+        newClient.sendMessageToClient(msg);
+        close(incFD);
         return;
     }
 
@@ -200,6 +202,7 @@ std::string	Server::receiveUserData(int &fd)
 std::string Server::readUserData(int &fd)
 {
 	char buffer[1024];
+    memset(buffer, 0, sizeof(buffer));
 	int bytes_read = recv(fd, buffer, 1024, 0);
 	if (bytes_read == 0)
 	{

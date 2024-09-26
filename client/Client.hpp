@@ -28,6 +28,7 @@ class Client
         void        setIPaddr(std::string IPaddr);
         const std::string   getNickName() const;
         const std::string   getUserName() const;
+        const std::string   getPassword() const;
 
         std::vector<std::string> split(std::string str);
         void    setUserData(std::string userData);

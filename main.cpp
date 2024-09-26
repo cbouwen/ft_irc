@@ -15,8 +15,8 @@ int	main(int argc, char** argv)
 		server.setPort(argv[1]);
 		//These two handle signal interrupts. Do we want to include this?
 		//Adding these for now because I am following a guide. Tbd.
-		//signal(SIGINT, Server::SignalHandler); // catches ctrl c
-		//signal(SIGQUIT, Server::SignalHandler); // catches ctrl /
+		signal(SIGINT, Server::SignalHandler); // catches ctrl c
+		signal(SIGQUIT, Server::SignalHandler); // catches ctrl /
 		server.ServerInit();
 	}	
 	catch (const std::exception& e)
@@ -26,4 +26,5 @@ int	main(int argc, char** argv)
 	}
 	std::cout << "Server closed. Thank you." << std::endl;
 }
-// this is a test comment, we can remove this later
+
+//irssi -c localhost -p 4848 -w test
