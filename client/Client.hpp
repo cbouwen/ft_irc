@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <iostream>
 #include <sstream>
 #include <vector>
 #include <stdexcept>
@@ -29,9 +30,13 @@ class Client
         const std::string   getNickName() const;
         const std::string   getUserName() const;
         const std::string   getPassword() const;
+        const std::string   getHostName() const;
+        const std::string   getFullName() const;
 
         std::vector<std::string> split(std::string str);
         void    setUserData(std::string userData);
 
         void    sendMessageToClient(std::string message) const;
 };
+
+std::ostream& operator << (std::ostream& os, const Client& client);

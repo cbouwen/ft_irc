@@ -40,6 +40,16 @@ const std::string   Client::getUserName() const
     return _userName;
 }
 
+const std::string   Client::getHostName() const
+{
+    return _hostName;
+}
+
+const std::string   Client::getFullName() const
+{
+    return _fullName;
+}
+
 std::vector<std::string> Client::split(std::string str)
 {
 	std::vector<std::string> words;
@@ -55,20 +65,24 @@ void    Client::setUserData(std::string userData)
 {
 	std::vector<std::string> words = split(userData);	
 
+
 //Current message: CAP LS 
 //Current message: CAP LS PASS test 
 //Current message: CAP LS PASS test NICK cbouwen 
 //Current message: CAP LS PASS test NICK cbouwen USER cbouwen cbouwen localhost :Cedric Bouwen 
 //Full USER command received: CAP LS PASS test NICK cbouwen USER cbouwen cbouwen localhost :Cedric Bouwen 
 
-	if (userData.find("PASS") != std::string::npos)
-		return; 
-
-	while (words.front().compare("PASS") != 0)
+//	std::cout << "testuserdata if" << std::endl;
+//	if (words.find("PASS") != std::string::npos)
+//		return; 
+//	std::cout << "testuserdata after if" << std::endl;
+	
+	while (words.front().compare("PASS") != 0) //Concerned about error handling here. What happens when we can't find "PASS"? Client dc's and no problem?
 		words.erase(words.begin());
 	words.erase(words.begin());
 	_userPassword = *words.begin();
 
+	words.erase(words.begin()); //extra skip. Don't really understand why but nickname got set as NICK if we didn't do this. Hey, it works.
 	words.erase(words.begin());
 	_nickName = *words.begin();
 
@@ -92,6 +106,8 @@ void    Client::setUserData(std::string userData)
 	}
 	fullName.erase(0, 1);
 	_fullName = fullName;
+
+//	std::cout << "Userdata: " << *this << std::endl;     Comment back in for testing purposes to see if everything got parsed correctly
 }
 
 void    Client::sendMessageToClient(std::string message) const
@@ -99,4 +115,14 @@ void    Client::sendMessageToClient(std::string message) const
     std::string buffer = message + "\r\n";
     if (send(this->getFD(), buffer.c_str(), buffer.size(), 0) < 0)
         throw std::runtime_error("Error while sending message to the client");
+}
+
+std::ostream& operator << (std::ostream &os,const Client & client)
+{
+
+	os << "Host name " << client.getHostName() << std::endl;
+	os << "real name " << client.getFullName() << std::endl;
+	os << "nick name " << client.getNickName() << std::endl;
+	os << "user name " << client.getUserName() << std::endl;
+	return os;
 }
