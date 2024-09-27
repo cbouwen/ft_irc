@@ -6,7 +6,7 @@ RM = rm -rf
 SRC_MAIN = main.cpp
 SRC_CHANNEL = $(addprefix ./channel/, Channel.cpp)
 SRC_CLIENT = $(addprefix ./client/, Client.cpp ) 
-SRC_COMMANDS = $(addprefix ./commands/, )
+SRC_COMMANDS = $(addprefix ./commands/, Command.cpp)
 SRC_SERVER = $(addprefix ./server/, Server.cpp)
 
 #Add header files here so they also re-compile

@@ -8,10 +8,13 @@
 class Channel
 {
     private:
-        std::vector<Client>&   _users;
+        std::vector<Client*>    _users;
+        std::string             _topic;
 
 
     public:
+        Channel();
+        ~Channel();
 
 
 

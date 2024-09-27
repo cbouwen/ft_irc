@@ -14,6 +14,8 @@
 #include <sstream>
 
 #include "../client/Client.hpp"
+#include "../channel/Channel.hpp"
+#include "../commands/Command.hpp"
 
 
 
@@ -26,6 +28,7 @@ class Server
         std::string                 _password;
 
         std::vector<Client>         _clients;
+        std::vector<Channel>        _channels;
         std::vector<struct pollfd>  _fds;
 
     public:

@@ -53,7 +53,7 @@ void    Server::CloseFD() //Does fd get deleted from pollfd?
     }
     if (_serverSocketFD != -1)
     {
-        std::cout << "Server <" << _serverSocketFD << "> disconnected" << std::endl; //this is a blank print statement. Only print on success. Change it
+        std::cout << "Server <" << _serverSocketFD << "> disconnected" << std::endl; //Is this cause of double disconnect issues?
         close(_serverSocketFD);
     }
 }
@@ -235,9 +235,10 @@ void    Server::ReceiveNewData(int fd)
     }
     else
     {
+        class Command cmd;
         buffer[bytes] = '\0';
         std::cout << "Client <" << fd << "> Data: " << buffer;
-        //Parse
+        cmd.parseCMD(buffer, *this);
         //Check data
         //Handle commands
         //ETC
