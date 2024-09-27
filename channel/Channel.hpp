@@ -16,6 +16,8 @@ class Channel
         Channel();
         ~Channel();
 
+        const std::string   getTopic() const;
 
-
+        void    setUp(std::string channelName);
+        void    addUser(Client& client);
 };

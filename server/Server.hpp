@@ -36,6 +36,10 @@ class Server
         ~Server();
 
         const std::string&  getPassword() const;
+        const std::vector<Channel>&  getChannels() const;
+        std::vector<Channel>&  getChannels();
+        Client* getClientByFD(int fd);
+
         void    setPassword(char* password);
         void    setPort(char* argv);
 

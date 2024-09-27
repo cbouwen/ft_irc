@@ -121,7 +121,7 @@ std::ostream& operator << (std::ostream &os,const Client & client)
 {
 
 	os << "Host name " << client.getHostName() << std::endl;
-	os << "real name " << client.getFullName() << std::endl;
+	os << "full name " << client.getFullName() << std::endl;
 	os << "nick name " << client.getNickName() << std::endl;
 	os << "user name " << client.getUserName() << std::endl;
 	return os;

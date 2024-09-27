@@ -23,6 +23,16 @@ const std::string&  Server::getPassword() const
     return _password;
 }
 
+std::vector<Channel>&  Server::getChannels()
+{
+    return _channels;
+}
+
+const std::vector<Channel>&  Server::getChannels() const
+{
+    return _channels;
+}
+
 void    Server::setPort(char *argv)
 {
     for (size_t i = 0; i < strlen(argv); i++)
@@ -219,6 +229,17 @@ std::string Server::readUserData(int &fd)
 	return ("");
 }
 
+Client* Server::getClientByFD(int fd)
+{
+    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
+    {
+        if (it->getFD() == fd)
+            return &(*it);
+    }
+    return NULL;
+}
+
+
 void    Server::ReceiveNewData(int fd)
 {
     char    buffer[1024];
@@ -235,10 +256,11 @@ void    Server::ReceiveNewData(int fd)
     }
     else
     {
-        class Command cmd;
+        class Command cmd(*this);
+        Client* client = getClientByFD(fd); //error handling or okay? FT can't be called if fd does not exist in vector
         buffer[bytes] = '\0';
-        std::cout << "Client <" << fd << "> Data: " << buffer;
-        cmd.parseCMD(buffer, *this);
+        std::cout << "Client <" << fd << "> Data: " << buffer; //Think we can remove this or at least change it. getNickname() instead of Client <fd>
+        cmd.parseCMD(buffer, *client);
         //Check data
         //Handle commands
         //ETC

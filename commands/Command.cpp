@@ -1,10 +1,5 @@
 #include "Command.hpp"
 
-Command::Command()
-{
-
-}
-
 Command::~Command()
 {
 
@@ -36,7 +31,7 @@ void    Command::parseStr(std::string str)
     
     this->_command = *words.begin();
     words.erase(words.begin());
-    if (getCommand() == "INVITE") //only when command is invite does irssi switch order in arguments
+    if (getCommand() == "INVITE") //only when command is invite does irssi switch order in arguments. Check reference below
     {
         this->_arguments = *words.begin(); 
         words.erase(words.begin());
@@ -56,46 +51,50 @@ void    Command::parseStr(std::string str)
     std::cout << "Command parse test: " << std::endl << *this << std::endl;
 }
 
-
-void    Command::parseCMD(std::string input, Server& server)
+void    Command::parseCMD(std::string input, Client& client)
 {
-    (void)server;
     parseStr(input);
 
-
-    /*
-    std::istringstream  stream(input); 
-    (void)server;
-    std::string         command;
-
-    stream >> command;
-
-    std::cout << std::endl << "Input = " << command;
-
-    std::string arguments;
-    std::getline(stream, arguments);
-
-    std::cout << std::endl << "Rest of stream = " << arguments << std::endl << std::endl;
-*/
-
-
-
+    if (getCommand() == "JOIN")
+        joinChannel(client);
 /*
-    if (command == "JOIN")
-        joinChannel(channel);
-    else if (command == "TOPIC")
+    else if (getCommand() == "TOPIC")
         setChannelName();
-    else if (command == "KICK")
+    else if (getCommand() == "KICK")
         executeKick();
-    else if (command == "MODE")
+    else if (getCommand() == "MODE")
         executeMode();
-    else if (command == "INVITE")
+    else if (getCommand() == "INVITE")
         executeInvite();
-    else if (command == "PRIVMSG")
+    else if (getCommand() == "PRIVMSG") //if no command is parsed, command is set to PRIVMSG meaning sending msgs
         sendMsg();
 */
+}
 
+void    Command::joinChannel(Client& client)
+{
+    Channel* existingChannel = NULL;
 
+    for (std::vector<Channel>::const_iterator it = _server.getChannels().begin(); it != _server.getChannels().end(); ++it)
+    {
+        if (it->getTopic() == getChannelName())
+        {
+            existingChannel = const_cast<Channel*>(&(*it));
+            break;
+        }
+    }
+    if (existingChannel == NULL)
+    {
+        Channel newChannel;
+        newChannel.setUp(getChannelName()); //let us set this up when all of the above works
+        _server.getChannels().push_back(newChannel);
+        existingChannel = &_server.getChannels().back();
+    }
+    
+    existingChannel->addUser(client); //write addUser, find a way to add client
+
+    std::cout << "Succesfully added the channel -" << _server.getChannels().back().getTopic() << "- to vector channel in server class" << std::endl; //Errors here: after joining different channel, output remained inconsistent about channelname
+    std::cout << "Succesfully added user -" << client.getNickName() << "- to -" << existingChannel->getTopic() << std::endl; //
 }
 
 std::ostream& operator << (std::ostream &os,const Command& command)
