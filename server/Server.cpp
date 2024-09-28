@@ -33,6 +33,11 @@ const std::vector<Channel>&  Server::getChannels() const
     return _channels;
 }
 
+const std::list<Client>&  Server::getServerClients() const
+{
+    return _clients;
+}
+
 void    Server::setPort(char *argv)
 {
     for (size_t i = 0; i < strlen(argv); i++)
@@ -46,6 +51,17 @@ void    Server::setPort(char *argv)
     this->_port = port;
 }
 
+Channel*    Server::findChannel(std::string channelName)
+{
+    for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        if (it->getTopic() == channelName)
+            return &(*it);
+    }
+    std::cout << "Null return at channel" << std::endl;
+    return NULL;
+}
+
 //Static function so we can call on this from everywhere
 void Server::SignalHandler(int signum)
 {
@@ -56,10 +72,10 @@ void Server::SignalHandler(int signum)
 
 void    Server::CloseFD() //Does fd get deleted from pollfd?
 {
-    for (size_t i = 0; i < _clients.size(); i++)
+    for (std::list<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
     {
-        std::cout << "Client<" << _clients[i].getFD() << "> disconnected." << std::endl;
-        close(_clients[i].getFD());//check comment below in ClearClient
+        std::cout << "Client<" << it->getFD() << "> disconnected." << std::endl;
+        close(it->getFD());//check comment below in ClearClient
     }
     if (_serverSocketFD != -1)
     {
@@ -70,10 +86,10 @@ void    Server::CloseFD() //Does fd get deleted from pollfd?
 
 void    Server::ClearClient(int fd)
 {
-    for (size_t i = 0; i < _fds.size(); i++)
+    for (std::list<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
     {
-        if (_fds[i].fd == fd)
-            _clients.erase(_clients.begin() + i);//Client disconnects correctly but on server shutdown, clients disconnects again? Look into it
+        if (it->getFD() == fd)
+            _clients.erase(it);//Client disconnects correctly but on server shutdown, clients disconnects again? Look into it
         break;
     }
 }
@@ -231,11 +247,12 @@ std::string Server::readUserData(int &fd)
 
 Client* Server::getClientByFD(int fd)
 {
-    for (std::vector<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
+    for (std::list<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
     {
         if (it->getFD() == fd)
             return &(*it);
     }
+    std::cout << "Null return at getClientbyFD" << std::endl;
     return NULL;
 }
 
@@ -265,4 +282,15 @@ void    Server::ReceiveNewData(int fd)
         //Handle commands
         //ETC
     }
+}
+
+Client*    Server::getClientByName(const std::string targetClient)
+{
+    for (std::list<Client>::iterator it = _clients.begin(); it !=_clients.end(); it++)
+    {
+        if (it->getNickName() == targetClient)
+            return &(*it);
+    }
+    std::cout << "Null return at getClientbyName" << std::endl;
+    return NULL;
 }
