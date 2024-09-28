@@ -23,5 +23,5 @@ void    Channel::setUp(std::string channelName)
 void    Channel::addUser(Client& client)
 {
     _users.push_back(&client);
-    std::cout << "Client " << client.getNickName() << " added tot he channel." << std::endl;
+    std::cout << "Client " << client.getNickName() << " added to channel: " << getTopic() <<  std::endl;
 }

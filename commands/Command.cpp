@@ -71,10 +71,11 @@ void    Command::parseCMD(std::string input, Client& client)
 */
 }
 
-void    Command::joinChannel(Client& client)
+void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel and adding it the vector 'channels' on server | 2 = adding client to vector 'users' on channel
 {
     Channel* existingChannel = NULL;
 
+    //step 1
     for (std::vector<Channel>::const_iterator it = _server.getChannels().begin(); it != _server.getChannels().end(); ++it)
     {
         if (it->getTopic() == getChannelName())
@@ -86,12 +87,13 @@ void    Command::joinChannel(Client& client)
     if (existingChannel == NULL)
     {
         Channel newChannel;
-        newChannel.setUp(getChannelName()); //let us set this up when all of the above works
+        newChannel.setUp(getChannelName()); //setUp function needs some more body and finetuning
         _server.getChannels().push_back(newChannel);
         existingChannel = &_server.getChannels().back();
     }
     
-    existingChannel->addUser(client); //write addUser, find a way to add client
+    //step 2
+    existingChannel->addUser(client);
 
     std::cout << "Succesfully added the channel -" << _server.getChannels().back().getTopic() << "- to vector channel in server class" << std::endl; //Errors here: after joining different channel, output remained inconsistent about channelname
     std::cout << "Succesfully added user -" << client.getNickName() << "- to -" << existingChannel->getTopic() << std::endl; //
