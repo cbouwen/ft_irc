@@ -33,16 +33,11 @@ void    Channel::addUser(Client& client)
 
 void    Channel::broadcastMessage(const std::string& message, const Client& sender)
 {
+    std::string channelMsg = ":" + sender.getNickName() + "!" + sender.getUserName() + "@" + sender.getHostName() + " PRIVMSG " + this->_topic + " " + message;
 
-    std::cout <<  "Channel is " << this->getTopic() << std::endl;
-    std::cout << std::endl << "Sender is " << sender.getNickName() << std::endl;
-
-    int i = 0;
-    for (std::vector<Client*>::iterator it = _users.begin(); it != _users.end(); it++)
+    for (unsigned int i = 0; i < _users.size(); ++i)
     {
-        ++i;   
-        std::cout << "Client " << i << " is " << (*it)->getNickName() << std::endl;
-        if (*it != &sender)
-            (*it)->sendMessageToClient(message);
+        if (_users[i]->getNickName() != sender.getNickName())
+            _users[i]->sendMessageToClient(channelMsg);
     }
 }

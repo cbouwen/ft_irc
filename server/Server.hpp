@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <list>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <csignal> //Do we want to add this?
@@ -27,7 +28,7 @@ class Server
         static bool                 _signal;
         std::string                 _password;
 
-        std::vector<Client>         _clients;
+        std::list<Client>         _clients;
         std::vector<Channel>        _channels;
         std::vector<struct pollfd>  _fds;
 
@@ -37,7 +38,7 @@ class Server
 
         const std::string&  getPassword() const;
         const std::vector<Channel>&  getChannels() const;
-        const std::vector<Client>&  getServerClients() const;
+        const std::list<Client>&  getServerClients() const;
         std::vector<Channel>&  getChannels();
         Client* getClientByFD(int fd);
         Client* getClientByName(const std::string);

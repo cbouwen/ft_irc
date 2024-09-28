@@ -72,13 +72,14 @@ void    Command::parseCMD(std::string input, Client& client)
         if (!targetIsUser())
         {
             Client* recipient = _server.getClientByName(getChannelName());
-            recipient->sendMessageToClient(getArguments());        
+            std::string privMsg = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + recipient->getNickName() + " " + getArguments();
+            recipient->sendMessageToClient(privMsg);        
         }
         else
         {
             Channel* targetChannel = _server.findChannel(getChannelName());
          //   std::cout << std::endl <<std::endl << "Broadcast to: " << targetChannel->getTopic() << std::endl <<std::endl;
-            //if (targetChannel) //I believe this is unncessary. If we came here the channel name HAS to exist
+            //if (targetChannel) //I believe this is unncessary. If we came here the channel name HAS to exist. This definitely needs some testing though
                 targetChannel->broadcastMessage(getArguments(), client);
         }
     }
@@ -122,13 +123,6 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
 
     std::cout << "Succesfully added user -" << existingChannel->getUsers().back()->getNickName() << "- to -" << existingChannel->getTopic() << std::endl << std::endl; //
     
-    //pure testing purposes : Prints all clients within server
-    int i = 0;
-    for (std::vector<Client>::const_iterator it = _server.getServerClients().begin(); it != _server.getServerClients().end(); it++)
-    {
-        ++i;
-        std::cout << std::endl << "Client " << i << " is " << it->getNickName() << std::endl;
-    }
 }
 
 std::ostream& operator << (std::ostream &os,const Command& command)
