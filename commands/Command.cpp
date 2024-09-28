@@ -66,9 +66,31 @@ void    Command::parseCMD(std::string input, Client& client)
         executeMode();
     else if (getCommand() == "INVITE")
         executeInvite();
-    else if (getCommand() == "PRIVMSG") //if no command is parsed, command is set to PRIVMSG meaning sending msgs
-        sendMsg();
 */
+    else if (getCommand() == "PRIVMSG")
+    {
+        if (!targetIsUser())
+        {
+            Client* recipient = _server.getClientByName(getChannelName());
+            recipient->sendMessageToClient(getArguments());        
+        }
+        else
+        {
+            Channel* targetChannel = _server.findChannel(getChannelName());
+         //   std::cout << std::endl <<std::endl << "Broadcast to: " << targetChannel->getTopic() << std::endl <<std::endl;
+            //if (targetChannel) //I believe this is unncessary. If we came here the channel name HAS to exist
+                targetChannel->broadcastMessage(getArguments(), client);
+        }
+    }
+}
+
+bool    Command::targetIsUser()
+{
+    if (_channelName[0] == '#')
+    {
+        return true;
+    }
+    return false;
 }
 
 void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel and adding it the vector 'channels' on server | 2 = adding client to vector 'users' on channel
@@ -89,14 +111,24 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
         Channel newChannel;
         newChannel.setUp(getChannelName()); //setUp function needs some more body and finetuning
         _server.getChannels().push_back(newChannel);
+       
+        std::cout << "Succesfully added the channel -" << _server.getChannels().back().getTopic() << "- to vector channel in server class" << std::endl; //Errors here: after joining different channel, output remained inconsistent about channelname
+       
         existingChannel = &_server.getChannels().back();
     }
     
     //step 2
     existingChannel->addUser(client);
 
-    std::cout << "Succesfully added the channel -" << _server.getChannels().back().getTopic() << "- to vector channel in server class" << std::endl; //Errors here: after joining different channel, output remained inconsistent about channelname
-    std::cout << "Succesfully added user -" << client.getNickName() << "- to -" << existingChannel->getTopic() << std::endl; //
+    std::cout << "Succesfully added user -" << existingChannel->getUsers().back()->getNickName() << "- to -" << existingChannel->getTopic() << std::endl << std::endl; //
+    
+    //pure testing purposes : Prints all clients within server
+    int i = 0;
+    for (std::vector<Client>::const_iterator it = _server.getServerClients().begin(); it != _server.getServerClients().end(); it++)
+    {
+        ++i;
+        std::cout << std::endl << "Client " << i << " is " << it->getNickName() << std::endl;
+    }
 }
 
 std::ostream& operator << (std::ostream &os,const Command& command)

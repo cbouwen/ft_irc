@@ -33,6 +33,11 @@ const std::vector<Channel>&  Server::getChannels() const
     return _channels;
 }
 
+const std::vector<Client>&  Server::getServerClients() const
+{
+    return _clients;
+}
+
 void    Server::setPort(char *argv)
 {
     for (size_t i = 0; i < strlen(argv); i++)
@@ -44,6 +49,17 @@ void    Server::setPort(char *argv)
     if (port < 1024 || port > 49151)
         throw(std::runtime_error("Invalid port: Enter a number between 1024 and 49151"));
     this->_port = port;
+}
+
+Channel*    Server::findChannel(std::string channelName)
+{
+    for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        if (it->getTopic() == channelName)
+            return &(*it);
+    }
+    std::cout << "Null return at channel" << std::endl;
+    return NULL;
 }
 
 //Static function so we can call on this from everywhere
@@ -236,6 +252,7 @@ Client* Server::getClientByFD(int fd)
         if (it->getFD() == fd)
             return &(*it);
     }
+    std::cout << "Null return at getClientbyFD" << std::endl;
     return NULL;
 }
 
@@ -265,4 +282,15 @@ void    Server::ReceiveNewData(int fd)
         //Handle commands
         //ETC
     }
+}
+
+Client*    Server::getClientByName(const std::string targetClient)
+{
+    for (std::vector<Client>::iterator it = _clients.begin(); it !=_clients.end(); it++)
+    {
+        if (it->getNickName() == targetClient)
+            return &(*it);
+    }
+    std::cout << "Null return at getClientbyName" << std::endl;
+    return NULL;
 }

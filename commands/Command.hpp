@@ -28,6 +28,7 @@ class Command
         void    parseStr(std::string str);
         void    parseCMD(std::string input, Client& client);
 
+        bool    targetIsUser();
         void    joinChannel(Client& client);
 };
 

@@ -37,8 +37,10 @@ class Server
 
         const std::string&  getPassword() const;
         const std::vector<Channel>&  getChannels() const;
+        const std::vector<Client>&  getServerClients() const;
         std::vector<Channel>&  getChannels();
         Client* getClientByFD(int fd);
+        Client* getClientByName(const std::string);
 
         void    setPassword(char* password);
         void    setPort(char* argv);
@@ -52,6 +54,8 @@ class Server
         std::string receiveUserData(int &fd);
         std::string readUserData(int &fd);
 
+        Channel*    findChannel(std::string channelName);
+        void        sendPrivateMessage(std::string targetClient, Client& sender);
 
         void    CloseFD();
         void    ClearClient(int fd);
