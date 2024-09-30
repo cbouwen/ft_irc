@@ -25,9 +25,19 @@ bool   Channel::getChannelPassword() const
     return _channelPassword;
 }
 
+bool   Channel::getTopicPrivileges() const
+{
+    return _changeTopic;
+}
+
 const std::string   Channel::getPassword() const
 {
     return _password;
+}
+
+const std::string   Channel::getTopicName() const
+{
+    return _topicName;
 }
 
 const std::string   Channel::getTopic() const
@@ -38,10 +48,29 @@ const std::string   Channel::getTopic() const
 void    Channel::setUp(std::string channelName)
 {
     _topic = channelName;
+    _topicName = channelName;
     _inviteOnly = false;
     _changeTopic = false;
     _channelPassword = false;
 }
+
+void    Channel::setTopic(Client& client, std::string topicName)
+{
+    std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + this->_topic + " ";
+    if (getTopicPrivileges())
+    {
+        if (!checkOperatorStatus(client))
+        {
+            message += "You don't have operator privileges";
+            client.sendMessageToClient(message);
+            return ;
+        }
+    } 
+    _topicName = topicName;
+    message = "The topic for " + getTopic() + " has been set to " + topicName;
+    broadcastMessage(message, client);
+}
+
 
 bool    Channel::checkOperatorStatus(Client& client) const
 {

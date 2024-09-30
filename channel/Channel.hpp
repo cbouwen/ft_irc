@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <string>
 
 #include "../client/Client.hpp"
 
@@ -11,6 +12,7 @@ class Channel
     private:
         std::vector<Client*>    _users;
         std::string             _topic;
+        std::string             _topicName;
         std::vector<Client*>      _operators;
 
         bool                    _inviteOnly;
@@ -22,10 +24,13 @@ class Channel
         ~Channel();
 
         const std::string   getTopic() const;
+        const std::string   getTopicName() const;
         bool   getInviteOnly() const;
         bool   getChannelPassword() const;
+        bool   getTopicPrivileges() const;
         const std::string   getPassword() const;
         const std::vector<Client*>   getUsers() const;
+        void    setTopic(Client&, std::string);
 
         void    setUp(std::string channelName);
         void    addUser(Client& client);
