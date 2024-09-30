@@ -44,7 +44,21 @@ void    Command::parseStr(std::string str)
         this->_arguments.insert(_arguments.end(), words.begin(), words.end());
     }
 
-    std::cout << "Command parse test: " << std::endl << *this << std::endl;
+    std::cout << std::endl << std::endl << *this << std::endl;
+}
+
+void    Command::handleTopic(Client& client)
+{
+    Channel* targetChannel = _server.findChannel(getChannelName());
+    std::cout << "view topic test 1" << std::endl;
+    if (_arguments.empty())
+    {
+        std::cout << "view topic test 2" << std::endl;
+        client.sendMessageToClient(targetChannel->getTopicName());
+    }
+    else
+        targetChannel->setTopic(client, _arguments[0]);
+
 }
 
 void    Command::parseCMD(std::string input, Client& client)
@@ -53,9 +67,9 @@ void    Command::parseCMD(std::string input, Client& client)
 
     if (getCommand() == "JOIN")
         joinChannel(client);
-/*
     else if (getCommand() == "TOPIC")
-        setChannelName();
+        handleTopic(client);
+/*
     else if (getCommand() == "KICK")
         executeKick();
     else if (getCommand() == "INVITE")
@@ -116,7 +130,7 @@ void    Command::addPrivileges(Client& client)
         targetChannel->setTopicPrivileges(1, client);
     else if (_arguments[0] == "+k")
     {
-        if (_arguments.size() <= 1)
+        if (_arguments.size() <= 1) //no password passed
             targetChannel->setChannelPassword(1, client, NULL);
         else
             targetChannel->setChannelPassword(1, client, &_arguments[1]);
@@ -142,9 +156,6 @@ void    Command::removePrivileges(Client& client)
         targetChannel->setTopicPrivileges(0, client);
     else if (_arguments[0] == "-k")
         targetChannel->setChannelPassword(0, client, NULL);
-
-
-
 }
 
 bool    Command::targetIsUser()

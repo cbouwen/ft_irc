@@ -33,6 +33,8 @@ class Command
         
         bool    targetIsUser();
         void    joinChannel(Client& client);
+
+        void    handleTopic(Client&);
 };
 
 std::ostream& operator <<(std::ostream& os, const Command& command);
