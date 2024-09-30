@@ -13,7 +13,7 @@ class Command
     private:
         std::string _channelName;
         std::string _command;
-        std::string _arguments;
+        std::vector<std::string> _arguments;
 
         Server&      _server;  //reference to the server so we can easily adjust
 
@@ -23,11 +23,14 @@ class Command
 
         const std::string getChannelName() const;
         const std::string getCommand() const;
-        const std::string getArguments() const;
+        const std::vector<std::string> getArguments() const;
 
         void    parseStr(std::string str);
         void    parseCMD(std::string input, Client& client);
 
+        void    addPrivileges(Client& client);
+        void    removePrivileges(Client& client);
+        
         bool    targetIsUser();
         void    joinChannel(Client& client);
 };
