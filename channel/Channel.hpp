@@ -42,5 +42,7 @@ class Channel
         void    setTopicPrivileges(int a, Client& client);
         void    setChannelPassword(int a, Client& client, std::string*);
         void    broadcastMessage(const std::string& message, const Client& sender);
+        void    kickClient(Client& client, Client* targetClient);
+        void    inviteClient(Client& client, Client* targetClient);
 
 };
