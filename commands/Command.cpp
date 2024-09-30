@@ -104,16 +104,23 @@ void    Command::addPrivileges(Client& client)
         return;
     if (_arguments[0] == "+o")
     {
-        Client* targetClient = _server.getClientByName(_arguments[1]);
-        targetChannel->giveOperatorStatus(client, targetClient);
+        if (_arguments.size() > 1 && !_arguments[1].empty())
+        {
+            Client* targetClient = _server.getClientByName(_arguments[1]);
+            targetChannel->giveOperatorStatus(client, targetClient);
+        }
     }
     else if (_arguments[0] == "+i")
         targetChannel->setInviteOnly(1, client);
     else if (_arguments[0] == "+t")
         targetChannel->setTopicPrivileges(1, client);
     else if (_arguments[0] == "+k")
-        targetChannel->setChannelPassword(1, client, _arguments[1]);
-
+    {
+        if (_arguments.size() <= 1)
+            targetChannel->setChannelPassword(1, client, NULL);
+        else
+            targetChannel->setChannelPassword(1, client, &_arguments[1]);
+    }
 }
 
 void    Command::removePrivileges(Client& client)
@@ -121,16 +128,20 @@ void    Command::removePrivileges(Client& client)
     Channel* targetChannel = _server.findChannel(getChannelName());
     if (targetChannel == NULL)
         return;
-    Client* targetClient = _server.getClientByName(_arguments[1]);//could maybe do error check here. Instead of looking for client in server, we look for client in channel
     if (_arguments[0] == "-o")
-        targetChannel->removeOperatorStatus(client, targetClient);
+    {
+        if (_arguments.size() > 1 && !_arguments[1].empty())
+        {
+            Client* targetClient = _server.getClientByName(_arguments[1]);//could maybe do error check here. Instead of looking for client in server, we look for client in channel
+            targetChannel->removeOperatorStatus(client, targetClient);
+        }
+    }
     else if (_arguments[0] == "-i")
         targetChannel->setInviteOnly(0, client);
     else if (_arguments[0] == "-t")
         targetChannel->setTopicPrivileges(0, client);
     else if (_arguments[0] == "-k")
         targetChannel->setChannelPassword(0, client, NULL);
-
 
 
 

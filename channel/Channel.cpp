@@ -47,7 +47,6 @@ bool    Channel::checkOperatorStatus(Client& client) const
 {
     for (size_t i = 0; i < _operators.size(); i++)
     {
-        std::cout << "Checking operator: " << _operators[i]->getFD() << " against client: " << client.getFD() << std::endl; // Debug print
         if (_operators[i]->getFD() == client.getFD())
             return true;
     }
@@ -160,7 +159,7 @@ void    Channel::setInviteOnly(int a, Client& client)
     }
 }
 
-void    Channel::setChannelPassword(int a, Client& client, std::string password)
+void    Channel::setChannelPassword(int a, Client& client, std::string* password)
 {
     std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + this->_topic + " ";
     if (!checkOperatorStatus(client))
@@ -178,10 +177,16 @@ void    Channel::setChannelPassword(int a, Client& client, std::string password)
         }
         else if (a == 1)
         {
-        _channelPassword = true;
-        _password = password;
-        message += this->getTopic() + " is now restricted by a password";
-        client.sendMessageToClient(message);
+            if (!password)
+            {
+                message += "Argument for password missing" ;
+                client.sendMessageToClient(message);
+                return ;
+            }
+            _channelPassword = true;
+            _password = *password;
+            message += this->getTopic() + " is now restricted by a password";
+            client.sendMessageToClient(message);
         }
     }
 }

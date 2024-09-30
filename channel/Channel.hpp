@@ -35,7 +35,7 @@ class Channel
         void    removeOperatorStatus(Client &client, Client*);
         void    setInviteOnly(int a, Client& client);
         void    setTopicPrivileges(int a, Client& client);
-        void    setChannelPassword(int a, Client& client, std::string);
+        void    setChannelPassword(int a, Client& client, std::string*);
         void    broadcastMessage(const std::string& message, const Client& sender);
 
 };
