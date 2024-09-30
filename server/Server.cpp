@@ -210,7 +210,7 @@ std::string	Server::receiveUserData(int &fd)
 			str += " ";
 			buffer.erase(0, pos + 2); // Remove the processed message
 
-			std::cout << "Current message: " << str << std::endl; //Testing: Think we can erase this yeah?
+//			std::cout << "Current message: " << str << std::endl; //Testing: Think we can erase this yeah?
 
 			if (str.find("USER") != std::string::npos)
             {
@@ -219,8 +219,8 @@ std::string	Server::receiveUserData(int &fd)
 			}
 		}
 
-		if (user_received)
-			std::cout << "Full USER command received: " << str << std::endl; //Testing purposes, fluff. Can let this in or remove it
+//		if (user_received)
+//			std::cout << "Full USER command received: " << str << std::endl; //Testing purposes, fluff. Can let this in or remove it
 	}
 	return str;
 }

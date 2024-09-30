@@ -15,7 +15,7 @@ const std::string   Command::getCommand() const
     return _command;
 }
 
-const std::string   Command::getArguments() const
+const std::vector<std::string>   Command::getArguments() const
 {
     return _arguments;
 }
@@ -29,23 +29,19 @@ void    Command::parseStr(std::string str)
     while (stream >> word)
         words.push_back(word);
     
-    this->_command = *words.begin();
+    this->_command = words.front();
     words.erase(words.begin());
     if (getCommand() == "INVITE") //only when command is invite does irssi switch order in arguments. Check reference below
     {
-        this->_arguments = *words.begin(); 
+        this->_arguments.push_back(words.front());
         words.erase(words.begin());
-        this->_channelName = *words.begin();
+        this->_channelName = words.front();
     }
     else
     {
-        this->_channelName = *words.begin();
+        this->_channelName = words.front();
         words.erase(words.begin());
-        for (size_t i = 0; i < words.size(); ++i)
-        {
-            if (i > 0) this->_arguments += " ";
-                this->_arguments += words[i];   //This starts the argument list with ':'. We can keep this and see in the future or work around it
-        }
+        this->_arguments.insert(_arguments.end(), words.begin(), words.end());
     }
 
     std::cout << "Command parse test: " << std::endl << *this << std::endl;
@@ -62,17 +58,30 @@ void    Command::parseCMD(std::string input, Client& client)
         setChannelName();
     else if (getCommand() == "KICK")
         executeKick();
-    else if (getCommand() == "MODE")
-        executeMode();
     else if (getCommand() == "INVITE")
         executeInvite();
 */
+
+    else if (getCommand() == "MODE")
+    {
+        if (_arguments[0][0] == '+')
+            addPrivileges(client);
+        else if (_arguments[0][0] == '-')
+            removePrivileges(client); 
+    }
     else if (getCommand() == "PRIVMSG")
     {
+        std::string message;
+        for (size_t i = 0; i < getArguments().size(); ++i)
+        {
+            message += getArguments()[i];
+            if (i < getArguments().size() - 1)  // Add a space between words
+                message += " ";
+        }
         if (!targetIsUser())
         {
             Client* recipient = _server.getClientByName(getChannelName());
-            std::string privMsg = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + recipient->getNickName() + " " + getArguments();
+            std::string privMsg = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + recipient->getNickName() + " " + message;
             recipient->sendMessageToClient(privMsg);        
         }
         else
@@ -80,9 +89,62 @@ void    Command::parseCMD(std::string input, Client& client)
             Channel* targetChannel = _server.findChannel(getChannelName());
          //   std::cout << std::endl <<std::endl << "Broadcast to: " << targetChannel->getTopic() << std::endl <<std::endl;
             //if (targetChannel) //I believe this is unncessary. If we came here the channel name HAS to exist. This definitely needs some testing though
-                targetChannel->broadcastMessage(getArguments(), client);
+                targetChannel->broadcastMessage(message, client);
         }
     }
+}
+
+void    Command::addPrivileges(Client& client)
+{
+    //Weird issue happened here. Check the issues board in ft_irc
+//    std::cout << "MODEtest 0" << std::endl;
+  //  std::cout << "_server.findChannel(getChannelName()) = " << _server.findChannel(getChannelName()) << std::endl;
+    Channel* targetChannel = _server.findChannel(getChannelName());
+    if (targetChannel == NULL)
+        return;
+    if (_arguments[0] == "+o")
+    {
+        if (_arguments.size() > 1 && !_arguments[1].empty())
+        {
+            Client* targetClient = _server.getClientByName(_arguments[1]);
+            targetChannel->giveOperatorStatus(client, targetClient);
+        }
+    }
+    else if (_arguments[0] == "+i")
+        targetChannel->setInviteOnly(1, client);
+    else if (_arguments[0] == "+t")
+        targetChannel->setTopicPrivileges(1, client);
+    else if (_arguments[0] == "+k")
+    {
+        if (_arguments.size() <= 1)
+            targetChannel->setChannelPassword(1, client, NULL);
+        else
+            targetChannel->setChannelPassword(1, client, &_arguments[1]);
+    }
+}
+
+void    Command::removePrivileges(Client& client)
+{
+    Channel* targetChannel = _server.findChannel(getChannelName());
+    if (targetChannel == NULL)
+        return;
+    if (_arguments[0] == "-o")
+    {
+        if (_arguments.size() > 1 && !_arguments[1].empty())
+        {
+            Client* targetClient = _server.getClientByName(_arguments[1]);//could maybe do error check here. Instead of looking for client in server, we look for client in channel
+            targetChannel->removeOperatorStatus(client, targetClient);
+        }
+    }
+    else if (_arguments[0] == "-i")
+        targetChannel->setInviteOnly(0, client);
+    else if (_arguments[0] == "-t")
+        targetChannel->setTopicPrivileges(0, client);
+    else if (_arguments[0] == "-k")
+        targetChannel->setChannelPassword(0, client, NULL);
+
+
+
 }
 
 bool    Command::targetIsUser()
@@ -117,21 +179,38 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
        
         existingChannel = &_server.getChannels().back();
     }
-    
     //step 2
-    existingChannel->addUser(client);
+    if (existingChannel->getInviteOnly() == false) //Needs more logic to implement it. solve this at INVITE
+    {
+        if (existingChannel->getChannelPassword() == true && _arguments[0] == existingChannel->getPassword())
+        {
 
-    std::cout << "Succesfully added user -" << existingChannel->getUsers().back()->getNickName() << "- to -" << existingChannel->getTopic() << std::endl << std::endl; //
-    
+        }
+        else
+        {
+            existingChannel->addUser(client);
+            std::cout << "Succesfully added user -" << existingChannel->getUsers().back()->getNickName() << "- to -" << existingChannel->getTopic() << std::endl << std::endl; //
+        }
+    }
+    else
+    {
+        std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + existingChannel->getTopic() + " Channel is for invite only";
+        std::cout << message << std::endl;
+    }
 }
-
-std::ostream& operator << (std::ostream &os,const Command& command)
+std::ostream& operator<<(std::ostream &os, const Command& command)
 {
-
-	os << "Channel name: " << command.getChannelName() << std::endl;
-	os << "Command: " << command.getCommand() << std::endl;
-	os << "Arguments: " << command.getArguments() << std::endl;
-	return os;
+    os << "Channel name: " << command.getChannelName() << std::endl;
+    os << "Command: " << command.getCommand() << std::endl;
+    os << "Arguments: ";
+    for (size_t i = 0; i < command.getArguments().size(); ++i)
+    {
+        os << command.getArguments()[i];
+        if (i != command.getArguments().size() - 1)
+            os << " ";  // Add a space between arguments, but not after the last one
+    }
+    os << std::endl;
+    return os;
 }
 
 
