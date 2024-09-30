@@ -30,7 +30,10 @@ class Command
 
         void    addPrivileges(Client& client);
         void    removePrivileges(Client& client);
-        
+
+        void     executeKick(Client& client, std::string targetClientName);
+        void     executeInvite(Client& client, std::string targetClientName);
+
         bool    targetIsUser();
         void    joinChannel(Client& client);
 

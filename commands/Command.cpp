@@ -69,13 +69,10 @@ void    Command::parseCMD(std::string input, Client& client)
         joinChannel(client);
     else if (getCommand() == "TOPIC")
         handleTopic(client);
-/*
     else if (getCommand() == "KICK")
-        executeKick();
+        executeKick(client, _arguments[0]);
     else if (getCommand() == "INVITE")
-        executeInvite();
-*/
-
+        executeInvite(client, _arguments[0]);
     else if (getCommand() == "MODE")
     {
         if (_arguments[0][0] == '+')
@@ -106,6 +103,28 @@ void    Command::parseCMD(std::string input, Client& client)
                 targetChannel->broadcastMessage(message, client);
         }
     }
+}
+
+void    Command::executeKick(Client& client, std::string targetClientName)
+{
+    Client* targetClient = _server.getClientByName(targetClientName);
+    if (!targetClient)
+        return;
+    Channel* targetChannel = _server.findChannel(getChannelName());
+    if (!targetChannel)
+        return;
+    targetChannel->kickClient(client, targetClient);    
+}
+
+void    Command::executeInvite(Client& client, std::string targetClientName)
+{
+    Client* targetClient = _server.getClientByName(targetClientName);
+    if (!targetClient)
+        return;
+    Channel* targetChannel = _server.findChannel(getChannelName());
+    if (!targetChannel)
+        return;
+    targetChannel->inviteClient(client, targetClient);    
 }
 
 void    Command::addPrivileges(Client& client)
@@ -183,32 +202,41 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
     if (existingChannel == NULL)
     {
         Channel newChannel;
-        newChannel.setUp(getChannelName()); //setUp function needs some more body and finetuning
+        newChannel.setUp(getChannelName());
         _server.getChannels().push_back(newChannel);
        
-        std::cout << "Succesfully added the channel -" << _server.getChannels().back().getTopic() << "- to vector channel in server class" << std::endl; //Errors here: after joining different channel, output remained inconsistent about channelname
+        std::cout << "Succesfully added the channel -" << _server.getChannels().back().getTopic() << "- to vector channel in server class" << std::endl;
        
         existingChannel = &_server.getChannels().back();
     }
+
     //step 2
     if (existingChannel->getInviteOnly() == false) //Needs more logic to implement it. solve this at INVITE
     {
-        if (existingChannel->getChannelPassword() == true && _arguments[0] == existingChannel->getPassword())
+        if (existingChannel->getChannelPassword() == true) 
         {
-
+            if (_arguments.size() > 0)
+            {
+                if (_arguments[0] != existingChannel->getPassword())
+                {
+                    std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + existingChannel->getTopic() + "Incorrect password";
+                    std::cout << message << std::endl; //or send msg to client?
+                }
+            }
         }
         else
         {
             existingChannel->addUser(client);
-            std::cout << "Succesfully added user -" << existingChannel->getUsers().back()->getNickName() << "- to -" << existingChannel->getTopic() << std::endl << std::endl; //
+            std::cout << "Succesfully added user -" << existingChannel->getUsers().back()->getNickName() << "- to -" << existingChannel->getTopic() << std::endl << std::endl;
         }
     }
     else
     {
         std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + existingChannel->getTopic() + " Channel is for invite only";
-        std::cout << message << std::endl;
+        std::cout << message << std::endl; //or send msg to client?
     }
 }
+
 std::ostream& operator<<(std::ostream &os, const Command& command)
 {
     os << "Channel name: " << command.getChannelName() << std::endl;

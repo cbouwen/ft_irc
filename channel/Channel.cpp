@@ -173,18 +173,18 @@ void    Channel::setInviteOnly(int a, Client& client)
     }
     else
     {
-    if (a == 0)
-    {
-        _inviteOnly = false;
-        message += this->getTopic() + " is open for everyone to join";
-        client.sendMessageToClient(message);
-    }
-    else if (a == 1)
-    {
-        _inviteOnly = true;
-        message += this->getTopic() + " is now invite only";
-        client.sendMessageToClient(message);
-    }
+        if (a == 0)
+        {
+            _inviteOnly = false;
+            message += this->getTopic() + " is open for everyone to join";
+            client.sendMessageToClient(message);
+        }
+        else if (a == 1)
+        {
+            _inviteOnly = true;
+            message += this->getTopic() + " is now invite only";
+            client.sendMessageToClient(message);
+        }
     }
 }
 
@@ -220,12 +220,51 @@ void    Channel::setChannelPassword(int a, Client& client, std::string* password
     }
 }
 
+void    Channel::kickClient(Client& client, Client* targetClient)
+{
+    std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + this->_topic + " ";
+    if (!checkOperatorStatus(client))
+    {
+        message += "You don't have operator privileges";
+        client.sendMessageToClient(message);
+        return ;
+    }
+    std::cout << std::endl << std::endl << "Target client = " << targetClient->getNickName() << std::endl;
+    for (size_t i = 0; i < _users.size(); ++i)
+    {
+        std::cout << "user " << i << " = " << _users[i]->getNickName() << std::endl;
+        if (_users[i]->getNickName() == targetClient->getNickName())
+        {
+            _users.erase(_users.begin() + i);
+            message += "Client " + targetClient->getNickName() + " has been kicked from the channel.";
+            client.sendMessageToClient(message);
+            message = "Client " + targetClient->getNickName() + " has been kicked from the channel.";
+            broadcastMessage(message, client);
+            return ;
+        }
+    }
+    message += "Target Client isn't a member of this channel";
+    client.sendMessageToClient(message);
+}
+
+void    Channel::inviteClient(Client& client, Client* targetClient)
+{
+    std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + this->_topic + " ";
+    if (!checkOperatorStatus(client))
+    {
+        message += "You don't have operator privileges";
+        client.sendMessageToClient(message);
+    }
+    addUser(*targetClient);
+    std::cout << "Succesfully added user -" << getUsers().back()->getNickName() << "- to -" << getTopic() << std::endl << std::endl;
+}
+
 void    Channel::addUser(Client& client)
 {
     _users.push_back(&client);
     if (_operators.empty())
     {
-        _operators.push_back(&client); //Is this best way to do this? 
+        _operators.push_back(&client);
         std::cout << "Client " << (*_operators.begin())->getNickName() << " is now operator of channel: " << getTopic() <<  std::endl;
     }
 }
