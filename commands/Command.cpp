@@ -50,15 +50,30 @@ void    Command::parseStr(std::string str)
 void    Command::handleTopic(Client& client)
 {
     Channel* targetChannel = _server.findChannel(getChannelName());
-    std::cout << "view topic test 1" << std::endl;
-    if (_arguments.empty())
+    if (!targetChannel)
+        return ;
+    if (_arguments.empty()) //view the topic
     {
-        std::cout << "view topic test 2" << std::endl;
-        client.sendMessageToClient(targetChannel->getTopicName());
+        if (targetChannel->getTopicName().empty()) // no topic is set
+        {
+            std::string clientMessage = ":server 331 " + client.getNickName() + " " + targetChannel->getTopic() + " : No topic is set";
+            std::cout << clientMessage << std::endl;
+            client.sendMessageToClient(clientMessage);
+        }
+        else //show the topic
+        {
+            std::string clientMessage = ":server 332 " + client.getNickName() + " " + targetChannel->getTopic() + " :" + targetChannel->getTopicName();
+            std::cout << clientMessage << std::endl;
+            client.sendMessageToClient(clientMessage);
+        }
     }
-    else
+    else //extra argument to set the topic. Might have to add extra step to check if they added more than 1 argument
+    {
         targetChannel->setTopic(client, _arguments[0]);
-
+        std::string clientMessage = ":server 332 " + client.getNickName() + " " + targetChannel->getTopic() + " :" + targetChannel->getTopicName();
+        std::cout << clientMessage << std::endl;
+        client.sendMessageToClient(clientMessage);
+    }
 }
 
 void    Command::parseCMD(std::string input, Client& client)
@@ -129,9 +144,6 @@ void    Command::executeInvite(Client& client, std::string targetClientName)
 
 void    Command::addPrivileges(Client& client)
 {
-    //Weird issue happened here. Check the issues board in ft_irc
-//    std::cout << "MODEtest 0" << std::endl;
-  //  std::cout << "_server.findChannel(getChannelName()) = " << _server.findChannel(getChannelName()) << std::endl;
     Channel* targetChannel = _server.findChannel(getChannelName());
     if (targetChannel == NULL)
         return;
@@ -211,9 +223,18 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
     }
 
     //step 2
+    if (existingChannel->checkIsInvited(client)) //CLient is on invited list == auto accept
+    {
+        existingChannel->addUser(client);
+        std::string joinMessage = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " JOIN :" + existingChannel->getTopic();
+        existingChannel->broadcastMessage(joinMessage, client);
+        std::cout << "Succesfully added user -" << existingChannel->getUsers().back()->getNickName() << "- to -" << existingChannel->getTopic() << std::endl << std::endl;
+        return ;
+    }
+
     if (existingChannel->getInviteOnly() == false) //Needs more logic to implement it. solve this at INVITE
     {
-        if (existingChannel->getChannelPassword() == true) 
+        if (existingChannel->getChannelPassword() == true)
         {
             if (_arguments.size() > 0)
             {
@@ -222,6 +243,18 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
                     std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + existingChannel->getTopic() + "Incorrect password";
                     std::cout << message << std::endl; //or send msg to client?
                 }
+              else
+                {
+                    existingChannel->addUser(client);
+                    std::string joinMessage = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " JOIN :" + existingChannel->getTopic();
+                    existingChannel->broadcastMessage(joinMessage, client);
+                    std::cout << "Succesfully added user -" << existingChannel->getUsers().back()->getNickName() << "- to -" << existingChannel->getTopic() << std::endl << std::endl;
+                }
+            }
+            else
+            {
+                std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + existingChannel->getTopic() + "You have to enter a password";
+                std::cout << message << std::endl; //or send msg to client?
             }
         }
         else

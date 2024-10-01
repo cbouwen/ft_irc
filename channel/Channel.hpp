@@ -14,6 +14,7 @@ class Channel
         std::string             _topic;
         std::string             _topicName;
         std::vector<Client*>      _operators;
+        std::vector<Client*>      _invitees;
 
         bool                    _inviteOnly;
         bool                    _changeTopic;
@@ -34,6 +35,7 @@ class Channel
 
         void    setUp(std::string channelName);
         void    addUser(Client& client);
+        bool    checkIsInvited(Client &client) const;
         bool    checkOperatorStatus(Client &client) const;
 
         void    giveOperatorStatus(Client &client, Client*);
@@ -41,8 +43,9 @@ class Channel
         void    setInviteOnly(int a, Client& client);
         void    setTopicPrivileges(int a, Client& client);
         void    setChannelPassword(int a, Client& client, std::string*);
-        void    broadcastMessage(const std::string& message, const Client& sender);
         void    kickClient(Client& client, Client* targetClient);
         void    inviteClient(Client& client, Client* targetClient);
 
+        void    broadcastMessageToAll(const std::string& message);
+        void    broadcastMessage(const std::string& message, const Client& sender);
 };

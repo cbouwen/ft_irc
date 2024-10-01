@@ -11,14 +11,14 @@ class Server;
 class Command
 {
     private:
-        std::string _channelName;
         std::string _command;
         std::vector<std::string> _arguments;
 
         Server&      _server;  //reference to the server so we can easily adjust
+        std::string _channelName;
 
     public:
-        Command(Server& server) : _server(server) {} ;
+        Command(Server& server,std::string init) : _server(server), _channelName(init) {} ;
         ~Command();
 
         const std::string getChannelName() const;

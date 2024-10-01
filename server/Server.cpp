@@ -273,7 +273,7 @@ void    Server::ReceiveNewData(int fd)
     }
     else
     {
-        class Command cmd(*this);
+        class Command cmd(*this, "");
         Client* client = getClientByFD(fd); //error handling or okay? FT can't be called if fd does not exist in vector
         buffer[bytes] = '\0';
         std::cout << "Client <" << fd << "> Data: " << buffer; //Think we can remove this or at least change it. getNickname() instead of Client <fd>

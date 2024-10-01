@@ -48,7 +48,7 @@ const std::string   Channel::getTopic() const
 void    Channel::setUp(std::string channelName)
 {
     _topic = channelName;
-    _topicName = channelName;
+    _topicName = "";
     _inviteOnly = false;
     _changeTopic = false;
     _channelPassword = false;
@@ -67,8 +67,22 @@ void    Channel::setTopic(Client& client, std::string topicName)
         }
     } 
     _topicName = topicName;
-    message = "The topic for " + getTopic() + " has been set to " + topicName;
-    broadcastMessage(message, client);
+    message = ":server 332 " + _topic + " :" + _topicName;
+    broadcastMessageToAll(message);
+    message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " TOPIC " + _topic + " :" + _topicName;
+    broadcastMessageToAll(message);
+
+    std::cout << std::endl << std::endl << "Topic is : " << getTopicName() << std::endl;
+}
+
+bool    Channel::checkIsInvited(Client& client) const
+{
+    for (size_t i = 0; i < _invitees.size(); i++)
+    {
+        if (_invitees[i]->getFD() == client.getFD())
+            return true;
+    }
+    return false;
 }
 
 
@@ -229,17 +243,19 @@ void    Channel::kickClient(Client& client, Client* targetClient)
         client.sendMessageToClient(message);
         return ;
     }
-    std::cout << std::endl << std::endl << "Target client = " << targetClient->getNickName() << std::endl;
     for (size_t i = 0; i < _users.size(); ++i)
     {
-        std::cout << "user " << i << " = " << _users[i]->getNickName() << std::endl;
         if (_users[i]->getNickName() == targetClient->getNickName())
         {
+            std::string kickMessage = ":" + client.getNickName() + " KICK " + _topic + " " + targetClient->getNickName() + " : I don't like you";
+            broadcastMessageToAll(kickMessage);
+
+//            targetClient->sendMessageToClient(kickMessage);
             _users.erase(_users.begin() + i);
-            message += "Client " + targetClient->getNickName() + " has been kicked from the channel.";
-            client.sendMessageToClient(message);
-            message = "Client " + targetClient->getNickName() + " has been kicked from the channel.";
-            broadcastMessage(message, client);
+    //        message += "Client " + targetClient->getNickName() + " has been kicked from the channel.";
+      //      client.sendMessageToClient(message);
+        //    message = "Client " + targetClient->getNickName() + " has been kicked from the channel.";
+          //  broadcastMessage(message, client);
             return ;
         }
     }
@@ -269,6 +285,14 @@ void    Channel::addUser(Client& client)
     }
 }
 
+void    Channel::broadcastMessageToAll(const std::string& message)
+{
+    for (unsigned int i = 0; i < _users.size(); ++i)
+    {
+        std::cout << "Sending " << message << " to client in channel:" << _topic << std::endl;
+        _users[i]->sendMessageToClient(message);
+    }
+}
 void    Channel::broadcastMessage(const std::string& message, const Client& sender)
 {
     std::string channelMsg = ":" + sender.getNickName() + "!" + sender.getUserName() + "@" + sender.getHostName() + " PRIVMSG " + this->_topic + " " + message;
