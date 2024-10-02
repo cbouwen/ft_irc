@@ -80,7 +80,9 @@ void    Command::parseCMD(std::string input, Client& client)
 {
     parseStr(input);
 
-    if (getCommand() == "JOIN")
+    if (getCommand() == "NICK")
+        client.setNickName(_channelName);
+    else if (getCommand() == "JOIN")
         joinChannel(client);
     else if (getCommand() == "TOPIC")
         handleTopic(client);

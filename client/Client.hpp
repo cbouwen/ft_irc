@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -32,6 +33,7 @@ class Client
         const std::string   getPassword() const;
         const std::string   getHostName() const;
         const std::string   getFullName() const;
+        void                setNickName(std::string);
 
         std::vector<std::string> split(std::string str);
         void    setUserData(std::string userData);

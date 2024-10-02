@@ -50,6 +50,13 @@ const std::string   Client::getFullName() const
     return _fullName;
 }
 
+void	Client::setNickName(std::string nickName)
+{
+	std::string oldNick = getNickName();
+	_nickName = nickName;
+	sendMessageToClient(":" + oldNick + " NICK " + nickName);
+}
+
 std::vector<std::string> Client::split(std::string str)
 {
 	std::vector<std::string> words;
@@ -71,14 +78,10 @@ void    Client::setUserData(std::string userData)
 //Current message: CAP LS PASS test NICK cbouwen 
 //Current message: CAP LS PASS test NICK cbouwen USER cbouwen cbouwen localhost :Cedric Bouwen 
 //Full USER command received: CAP LS PASS test NICK cbouwen USER cbouwen cbouwen localhost :Cedric Bouwen 
-
-//	std::cout << "testuserdata if" << std::endl;
-//	if (words.find("PASS") != std::string::npos)
-//		return; 
-//	std::cout << "testuserdata after if" << std::endl;
-	
+	if (std::find(words.begin(), words.end(), "PASS") == words.end())
+		return; 
 	while (words.front().compare("PASS") != 0) //Concerned about error handling here. What happens when we can't find "PASS"? Client dc's and no problem?
-		words.erase(words.begin());
+	words.erase(words.begin());
 	words.erase(words.begin());
 	_userPassword = *words.begin();
 

@@ -187,6 +187,13 @@ void    Server::AcceptNewClient()
     newClient.setFD(incFD);
     newClient.setIPaddr(inet_ntoa((clientAddr.sin_addr)));
     newClient.setUserData(userData);
+    if (newClient.getPassword().empty())
+    {
+        std::string msg = "Password is missing. Please provide a valid password.\r\n";
+        newClient.sendMessageToClient(msg);
+        close(incFD);
+        return;
+    }
     if (newClient.getPassword() != this->_password)
     {
         std::string msg = "Incorrect password: " + newClient.getPassword() + "\r\n";
@@ -231,8 +238,8 @@ std::string	Server::receiveUserData(int &fd)
 			}
 		}
 
-//		if (user_received)
-//			std::cout << "Full USER command received: " << str << std::endl; //Testing purposes, fluff. Can let this in or remove it
+		if (user_received)
+			std::cout << "Full USER command received: " << str << std::endl; //Testing purposes, fluff. Can let this in or remove it
 	}
 	return str;
 }
