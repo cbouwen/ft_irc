@@ -89,9 +89,21 @@ void    Server::ClearClient(int fd)
     for (std::list<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
     {
         if (it->getFD() == fd)
-            _clients.erase(it);//Client disconnects correctly but on server shutdown, clients disconnects again? Look into it
+        {
+            close(it->getFD());
+            it = _clients.erase(it);//Client disconnects correctly but on server shutdown, clients disconnects again? Look into it
+        } 
         break;
     }
+    for (size_t i = 0; i < _fds.size(); i++)
+    {
+        if (_fds[i].fd == fd)
+        {
+            _fds.erase(_fds.begin() + i);  // Remove the pollfd struct using an iterator
+            break;  // Exit loop once the fd is removed
+        }
+    }
+
 }
 
 void    Server::ServerSocket()
@@ -269,6 +281,7 @@ void    Server::ReceiveNewData(int fd)
     {
         std::cout << "Client <" << fd << "> disconnected" << std::endl;
         ClearClient(fd);
+        //remove fd from vector _pollfd
         close(fd);
     }
     else
