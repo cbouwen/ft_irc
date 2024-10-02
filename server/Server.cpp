@@ -183,7 +183,9 @@ void    Server::AcceptNewClient()
     newPoll.events = POLLIN;
     newPoll.revents = 0;
 
+//    std::cout << "netcat test 2" << std::endl;
     userData = receiveUserData(newPoll.fd);
+  //  std::cout << "netcat test 3" << std::endl;
     newClient.setFD(incFD);
     newClient.setIPaddr(inet_ntoa((clientAddr.sin_addr)));
     newClient.setUserData(userData);
@@ -226,11 +228,11 @@ std::string	Server::receiveUserData(int &fd)
 		while ((pos = buffer.find("\r\n")) != std::string::npos)
         {
 			str += buffer.substr(0, pos); // Extract the complete message
-			str += " ";
+			
+            
+            str += " ";
 			buffer.erase(0, pos + 2); // Remove the processed message
-
 //			std::cout << "Current message: " << str << std::endl; //Testing: Think we can erase this yeah?
-
 			if (str.find("USER") != std::string::npos)
             {
 				user_received = true;

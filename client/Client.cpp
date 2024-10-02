@@ -72,15 +72,9 @@ void    Client::setUserData(std::string userData)
 {
 	std::vector<std::string> words = split(userData);	
 
-
-//Current message: CAP LS 
-//Current message: CAP LS PASS test 
-//Current message: CAP LS PASS test NICK cbouwen 
-//Current message: CAP LS PASS test NICK cbouwen USER cbouwen cbouwen localhost :Cedric Bouwen 
-//Full USER command received: CAP LS PASS test NICK cbouwen USER cbouwen cbouwen localhost :Cedric Bouwen 
 	if (std::find(words.begin(), words.end(), "PASS") == words.end())
 		return; 
-	while (words.front().compare("PASS") != 0) //Concerned about error handling here. What happens when we can't find "PASS"? Client dc's and no problem?
+	while (words.front().compare("PASS") != 0)
 	words.erase(words.begin());
 	words.erase(words.begin());
 	_userPassword = *words.begin();
@@ -110,7 +104,7 @@ void    Client::setUserData(std::string userData)
 	fullName.erase(0, 1);
 	_fullName = fullName;
 
-//	std::cout << "Userdata: " << *this << std::endl;     Comment back in for testing purposes to see if everything got parsed correctly
+	std::cout << "Userdata: " << *this << std::endl;     //Comment back in for testing purposes to see if everything got parsed correctly
 }
 
 void    Client::sendMessageToClient(std::string message) const
