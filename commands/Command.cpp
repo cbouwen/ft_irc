@@ -233,6 +233,8 @@ Arguments: PASS test NICK Matisse USER cbouwen cbouwen localhost :Cedric Bouwen
                 targetChannel->broadcastMessage(message, client);
         }
     }
+    else if (getCommand() == "EXIT" || getCommand() == "/exit")
+        _server.CloseFD();
 }
 
 void    Command::executeKick(Client& client, std::string targetClientName)
