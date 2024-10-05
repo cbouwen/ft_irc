@@ -5,8 +5,10 @@
 
 #include "../server/Server.hpp"
 #include "../channel/Channel.hpp"
+#include "../client/Client.hpp"
 
 class Server;
+class Client;
 
 class Command
 {

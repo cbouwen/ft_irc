@@ -19,9 +19,13 @@ class Client
         std::string _userPassword;
         std::string _IPaddr;
         std::string _fullName;
+        std::string _serverPassword;
 
+        bool        _nickNameSet;
+        bool        _userNameSet;
+        bool        _passwordMatch;
     public:
-        Client();
+        Client(std::string);
         ~Client();
 
         int         getFD() const;
@@ -34,7 +38,10 @@ class Client
         const std::string   getHostName() const;
         const std::string   getFullName() const;
         void                setNickName(std::string);
+        void                setUserName(std::string);
+        void                checkPassword(std::string);
 
+        bool                isValid();
         std::vector<std::string> split(std::string str);
         void    setUserData(std::string userData);
 

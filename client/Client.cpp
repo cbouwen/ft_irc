@@ -1,8 +1,10 @@
 #include "Client.hpp"
 
-Client::Client()
+Client::Client(std::string password) : _serverPassword(password)
 {
-
+	_nickNameSet = false;
+	_userNameSet = false;
+	_passwordMatch = false;
 }
 
 Client::~Client()
@@ -50,14 +52,47 @@ const std::string   Client::getFullName() const
     return _fullName;
 }
 
+bool	Client::isValid()
+{
+	if (_nickNameSet == false)
+		return false;
+	if (_userNameSet == false)
+		return false;
+	if (_passwordMatch == false)
+		return false;
+	return true;
+}
+
+void	Client::checkPassword(std::string password)
+{
+	if (_passwordMatch == true)
+		return ;
+	if (_serverPassword == password)
+		_passwordMatch = true;
+	else
+	{
+       std::string notice = ":localhost NOTICE * :Incorrect password\r\n";
+        send(getFD(), notice.c_str(), notice.length(), 0);
+	}
+}
+
+void	Client::setUserName(std::string userName)
+{
+	std::string oldUser = getUserName();
+	_userName = userName;
+	_userNameSet = true;
+	sendMessageToClient(":" + oldUser + " USER " + userName);
+}
+
 void	Client::setNickName(std::string nickName)
 {
 	std::string oldNick = getNickName();
 	_nickName = nickName;
+	_nickNameSet = true;
 	sendMessageToClient(":" + oldNick + " NICK " + nickName);
 }
 
-std::vector<std::string> Client::split(std::string str)
+std::vector<std::string> Client::split(std::string str) //might be deletable
 {
 	std::vector<std::string> words;
 	std::string word;
@@ -68,18 +103,15 @@ std::vector<std::string> Client::split(std::string str)
 	return words;
 }
 
-void    Client::setUserData(std::string userData)
+void    Client::setUserData(std::string userData) //might be deletable. keep it till finish
 {
 	std::vector<std::string> words = split(userData);	
 
-	if (std::find(words.begin(), words.end(), "PASS") == words.end())
-		return; 
-	while (words.front().compare("PASS") != 0)
-	words.erase(words.begin());
-	words.erase(words.begin());
-	_userPassword = *words.begin();
+	std::cout << userData << std::endl;
 
-	words.erase(words.begin()); //extra skip. Don't really understand why but nickname got set as NICK if we didn't do this. Hey, it works.
+	while (words.front().compare("NICK") != 0)
+		words.erase(words.begin());
+
 	words.erase(words.begin());
 	_nickName = *words.begin();
 
@@ -101,7 +133,7 @@ void    Client::setUserData(std::string userData)
 		fullName += *words.begin();
 		words.erase(words.begin());
 	}
-	fullName.erase(0, 1);
+	fullName.erase(0, 1); //Why is this again?
 	_fullName = fullName;
 
 	std::cout << "Userdata: " << *this << std::endl;     //Comment back in for testing purposes to see if everything got parsed correctly
