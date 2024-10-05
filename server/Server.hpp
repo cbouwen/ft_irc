@@ -52,11 +52,11 @@ class Server
         void    AcceptNewClient();
         void    ReceiveNewData(int fd);
         
-        std::string receiveUserData(int &fd);
-        std::string readUserData(int &fd);
+ //       std::string receiveUserData(int &fd);
+//        std::string readUserData(int &fd);
 
         Channel*    findChannel(std::string channelName);
-        void        sendPrivateMessage(std::string targetClient, Client& sender);
+//        void        sendPrivateMessage(std::string targetClient, Client& sender);
 
         void    CloseFD();
         void    ClearClient(int fd);

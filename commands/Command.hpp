@@ -25,6 +25,9 @@ class Command
         const std::string getCommand() const;
         const std::vector<std::string> getArguments() const;
 
+        std::string receiveUserData(int fd);
+        std::string readUserData(int fd);
+
         void    parseStr(std::string str);
         void    parseCMD(std::string input, Client& client);
 

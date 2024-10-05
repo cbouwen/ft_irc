@@ -2,7 +2,9 @@
 
 Client::Client()
 {
-
+	_nickSet = false;
+	_passwordCorrect = false;
+	_userSet = false;
 }
 
 Client::~Client()
@@ -25,6 +27,10 @@ void    Client::setIPaddr(std::string IPaddr)
     _IPaddr = IPaddr;
 }
 
+const std::string   Client::getServerPassword() const
+{
+    return _serverPassword;
+}
 const std::string   Client::getPassword() const
 {
     return _userPassword;
@@ -50,11 +56,42 @@ const std::string   Client::getFullName() const
     return _fullName;
 }
 
+void	Client::setServerPassword(std::string password)
+{
+	_serverPassword = password;
+}
+
+void	Client::setNickSet()
+{
+	_nickSet = true;
+}
+
+void	Client::setUserSet()
+{
+	_userSet = true;
+}
+
+void	Client::setPasswordCorrect()
+{
+	_passwordCorrect = true;
+}
+
 void	Client::setNickName(std::string nickName)
 {
 	std::string oldNick = getNickName();
 	_nickName = nickName;
 	sendMessageToClient(":" + oldNick + " NICK " + nickName);
+}
+
+bool	Client::isValidated()
+{
+	if (_nickSet == false)
+		return false;
+	if (_userSet == false)
+		return false;
+	if (_passwordCorrect == false)
+		return false;
+	return true;
 }
 
 std::vector<std::string> Client::split(std::string str)

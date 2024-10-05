@@ -183,48 +183,24 @@ void    Server::AcceptNewClient()
     newPoll.events = POLLIN;
     newPoll.revents = 0;
 
-//    std::cout << "netcat test 2" << std::endl;
-    userData = receiveUserData(newPoll.fd);
-  //  std::cout << "netcat test 3" << std::endl;
     newClient.setFD(incFD);
     newClient.setIPaddr(inet_ntoa((clientAddr.sin_addr)));
-    newClient.setUserData(userData);
-    if (newClient.getPassword().empty())
-    {
-        std::string msg = "Password is missing. Please provide a valid password.\r\n";
-        newClient.sendMessageToClient(msg);
-        close(incFD);
-        return;
-    }
-    if (newClient.getPassword() != this->_password)
-    {
-        std::string msg = "Incorrect password: " + newClient.getPassword() + "\r\n";
-        newClient.sendMessageToClient(msg);
-        close(incFD);
-        return;
-    }
-
+    newClient.setServerPassword(_password);
     _clients.push_back(newClient);
     _fds.push_back(newPoll);
-
-    std::string welcomeMessage = ":serverhostname 001 " + newClient.getNickName() + " :Welcome to the IRC network, " + newClient.getNickName() + "!\r\n";
-	newClient.sendMessageToClient(welcomeMessage);
-
     std::cout << "Client <" << incFD << "> Connected" << std::endl;
-
 }
-
+/*
 std::string	Server::receiveUserData(int &fd)
 {
 	std::string buffer;
 	std::string str;
 	bool user_received = false;
 	size_t pos;
-	
+
     while (!user_received)
     {
 		buffer += readUserData(fd);
-
 		while ((pos = buffer.find("\r\n")) != std::string::npos)
         {
 			str += buffer.substr(0, pos); // Extract the complete message
@@ -232,8 +208,8 @@ std::string	Server::receiveUserData(int &fd)
             
             str += " ";
 			buffer.erase(0, pos + 2); // Remove the processed message
-//			std::cout << "Current message: " << str << std::endl; //Testing: Think we can erase this yeah?
-			if (str.find("USER") != std::string::npos)
+			std::cout << "Current message: " << str << std::endl; //Testing: Think we can erase this yeah?
+            if (str.find("USER") != std::string::npos)
             {
 				user_received = true;
 				break;
@@ -265,7 +241,7 @@ std::string Server::readUserData(int &fd)
 	}
 	return ("");
 }
-
+*/
 Client* Server::getClientByFD(int fd)
 {
     for (std::list<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
@@ -300,9 +276,6 @@ void    Server::ReceiveNewData(int fd)
         buffer[bytes] = '\0';
         std::cout << "Client <" << fd << "> Data: " << buffer; //Think we can remove this or at least change it. getNickname() instead of Client <fd>
         cmd.parseCMD(buffer, *client);
-        //Check data
-        //Handle commands
-        //ETC
     }
 }
 

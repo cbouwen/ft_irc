@@ -76,28 +76,141 @@ void    Command::handleTopic(Client& client)
     }
 }
 
+std::string	Command::receiveUserData(int fd)
+{
+	std::string buffer;
+	std::string str;
+	bool user_received = false;
+	size_t pos;
+
+    while (!user_received)
+    {
+		buffer += readUserData(fd);
+		while ((pos = buffer.find("\r\n")) != std::string::npos)
+        {
+			str += buffer.substr(0, pos); // Extract the complete message
+			
+            
+            str += " ";
+			buffer.erase(0, pos + 2); // Remove the processed message
+			std::cout << "Current message: " << str << std::endl; //Testing: Think we can erase this yeah?
+            if (str.find("USER") != std::string::npos)
+            {
+				user_received = true;
+				break;
+			}
+		}
+
+		if (user_received)
+			std::cout << "Full USER command received: " << str << std::endl; //Testing purposes, fluff. Can let this in or remove it
+	}
+	return str;
+}
+
+std::string Command::readUserData(int fd)
+{
+	char buffer[1024];
+    memset(buffer, 0, sizeof(buffer));
+	int bytes_read = recv(fd, buffer, 1024, 0);
+	if (bytes_read == 0)
+	{
+		close(fd);
+		fd = -1;
+		std::cout << "Client disconnected" <<std::endl;
+	}
+	else
+	{
+		buffer[bytes_read] = '\0';
+		std::string msg(buffer);
+		return msg;
+	}
+	return ("");
+}
+
 void    Command::parseCMD(std::string input, Client& client)
 {
+/*
+Channel name: LS
+Command: CAP
+Arguments: PASS test NICK Matisse USER cbouwen cbouwen localhost :Cedric Bouwen
+*/
+
+    std::cout << std::endl << "Full command: " << input << std::endl;
     parseStr(input);
 
-    if (getCommand() == "NICK")
+    if (getCommand() == "CAP")
+    {
+        std::cout << "test 1" << std::endl;
+//        std::string userData = receiveUserData(client.getFD());
+        std::cout << "test 2" << std::endl;
+        client.setUserData(input);
+        std::cout << "test 3" << std::endl;
+        if (client.getPassword().empty())
+        {
+            std::string msg = "Password is missing. Please provide a valid password.\r\n";
+            client.sendMessageToClient(msg);
+            _server.ClearClient(client.getFD());
+            return;
+        }
+        if (client.getPassword() != client.getServerPassword())
+        {
+            std::string msg = "Incorrect password: " + client.getPassword() + "\r\n";
+            client.sendMessageToClient(msg);
+            _server.ClearClient(client.getFD());
+            return;
+        }
+        std::string welcomeMessage = ":serverhostname 001 " + client.getNickName() + " :Welcome to the IRC network, " + client.getNickName() + "!\r\n";
+        client.sendMessageToClient(welcomeMessage);
+        std::cout << "test 4" << std::endl;
+        client.setNickSet();
+        client.setUserSet();
+        client.setPasswordCorrect();
+        return ;
+    }
+	if (getCommand() == "PASS")
+    {
+        if (client.getServerPassword() == _channelName)
+            client.setPasswordCorrect();
+        else
+        {
+            std::string passwordMsg = ":serverhostname 001 " + client.getNickName() + " :Password is incorrect." + "\r\n"; //copied this from handshake. Can this give errors?
+            client.sendMessageToClient(passwordMsg);
+        }
+    }
+
+	if (getCommand() == "NICK")
+	{
+		if (_channelName.empty())
+		{
+			std::cerr << "Not enough parameters" << std::endl;
+			client.sendMessageToClient("461 " + client.getNickName() + " NICK :Not enough parameters");
+		}
         client.setNickName(_channelName);
-    else if (getCommand() == "JOIN")
+        client.setNickSet();
+		return ;
+	}
+
+	if (getCommand() == "USER") //incomplete
+	{
+        client.setUserSet();
+	}
+    
+    else if (getCommand() == "JOIN" && client.isValidated() == true)
         joinChannel(client);
-    else if (getCommand() == "TOPIC")
+    else if (getCommand() == "TOPIC" && client.isValidated() == true)
         handleTopic(client);
-    else if (getCommand() == "KICK")
+    else if (getCommand() == "KICK" && client.isValidated() == true)
         executeKick(client, _arguments[0]);
-    else if (getCommand() == "INVITE")
+    else if (getCommand() == "INVITE" && client.isValidated() == true)
         executeInvite(client, _arguments[0]);
-    else if (getCommand() == "MODE")
+    else if (getCommand() == "MODE" && client.isValidated() == true)
     {
         if (_arguments[0][0] == '+')
             addPrivileges(client);
         else if (_arguments[0][0] == '-')
             removePrivileges(client); 
     }
-    else if (getCommand() == "PRIVMSG")
+    else if (getCommand() == "PRIVMSG" && client.isValidated() == true)
     {
         std::string message;
         for (size_t i = 0; i < getArguments().size(); ++i)
