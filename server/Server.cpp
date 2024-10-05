@@ -160,7 +160,7 @@ void    Server::ServerInit()
 
 void    Server::AcceptNewClient()
 {
-    Client              newClient;
+    Client              newClient(_password);
     struct sockaddr_in  clientAddr;
     struct pollfd       newPoll;
     socklen_t           len = sizeof(clientAddr);
@@ -183,27 +183,10 @@ void    Server::AcceptNewClient()
     newPoll.events = POLLIN;
     newPoll.revents = 0;
 
-//    std::cout << "netcat test 2" << std::endl;
     userData = receiveUserData(newPoll.fd);
-  //  std::cout << "netcat test 3" << std::endl;
     newClient.setFD(incFD);
     newClient.setIPaddr(inet_ntoa((clientAddr.sin_addr)));
     newClient.setUserData(userData);
-    if (newClient.getPassword().empty())
-    {
-        std::string msg = "Password is missing. Please provide a valid password.\r\n";
-        newClient.sendMessageToClient(msg);
-        close(incFD);
-        return;
-    }
-    if (newClient.getPassword() != this->_password)
-    {
-        std::string msg = "Incorrect password: " + newClient.getPassword() + "\r\n";
-        newClient.sendMessageToClient(msg);
-        close(incFD);
-        return;
-    }
-
     _clients.push_back(newClient);
     _fds.push_back(newPoll);
 
@@ -220,7 +203,7 @@ std::string	Server::receiveUserData(int &fd)
 	std::string str;
 	bool user_received = false;
 	size_t pos;
-	
+
     while (!user_received)
     {
 		buffer += readUserData(fd);
@@ -229,7 +212,6 @@ std::string	Server::receiveUserData(int &fd)
         {
 			str += buffer.substr(0, pos); // Extract the complete message
 			
-            
             str += " ";
 			buffer.erase(0, pos + 2); // Remove the processed message
 //			std::cout << "Current message: " << str << std::endl; //Testing: Think we can erase this yeah?
@@ -290,7 +272,6 @@ void    Server::ReceiveNewData(int fd)
     {
         std::cout << "Client <" << fd << "> disconnected" << std::endl;
         ClearClient(fd);
-        //remove fd from vector _pollfd
         close(fd);
     }
     else
@@ -300,9 +281,6 @@ void    Server::ReceiveNewData(int fd)
         buffer[bytes] = '\0';
         std::cout << "Client <" << fd << "> Data: " << buffer; //Think we can remove this or at least change it. getNickname() instead of Client <fd>
         cmd.parseCMD(buffer, *client);
-        //Check data
-        //Handle commands
-        //ETC
     }
 }
 

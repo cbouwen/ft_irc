@@ -80,44 +80,69 @@ void    Command::parseCMD(std::string input, Client& client)
 {
     parseStr(input);
 
+    //can enter new if statements to handle initial client connection
     if (getCommand() == "NICK")
+    {
+        std::cout << "Nick test" << std::endl;
         client.setNickName(_channelName);
-    else if (getCommand() == "JOIN")
-        joinChannel(client);
-    else if (getCommand() == "TOPIC")
-        handleTopic(client);
-    else if (getCommand() == "KICK")
-        executeKick(client, _arguments[0]);
-    else if (getCommand() == "INVITE")
-        executeInvite(client, _arguments[0]);
-    else if (getCommand() == "MODE")
-    {
-        if (_arguments[0][0] == '+')
-            addPrivileges(client);
-        else if (_arguments[0][0] == '-')
-            removePrivileges(client); 
+        return ;
     }
-    else if (getCommand() == "PRIVMSG")
+    if (getCommand() == "USER")
     {
-        std::string message;
-        for (size_t i = 0; i < getArguments().size(); ++i)
+        std::cout << "User test" << std::endl;
+        client.setUserName(_channelName);
+        return ;
+    }
+    if (getCommand() == "PASS")
+    {
+        std::cout << "Pass test" << std::endl;
+        client.checkPassword(_channelName);
+        return ;
+    }
+    if (client.isValid() == false)
+    {
+        std::string notice = ":localhost NOTICE * :You still need to authenticate using /nick, /user, /pass\r\n";
+        send(client.getFD(), notice.c_str(), notice.length(), 0);
+    }
+    else
+    {
+        if (getCommand() == "JOIN")
+            joinChannel(client);
+        else if (getCommand() == "TOPIC")
+            handleTopic(client);
+        else if (getCommand() == "KICK")
+            executeKick(client, _arguments[0]);
+        else if (getCommand() == "INVITE")
+            executeInvite(client, _arguments[0]);
+        else if (getCommand() == "MODE")
         {
-            message += getArguments()[i];
-            if (i < getArguments().size() - 1)  // Add a space between words
-                message += " ";
+            if (_arguments[0][0] == '+')
+                addPrivileges(client);
+            else if (_arguments[0][0] == '-')
+                removePrivileges(client); 
         }
-        if (!targetIsUser())
+        else if (getCommand() == "PRIVMSG")
         {
-            Client* recipient = _server.getClientByName(getChannelName());
-            std::string privMsg = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + recipient->getNickName() + " " + message;
-            recipient->sendMessageToClient(privMsg);        
-        }
-        else
-        {
-            Channel* targetChannel = _server.findChannel(getChannelName());
-         //   std::cout << std::endl <<std::endl << "Broadcast to: " << targetChannel->getTopic() << std::endl <<std::endl;
-            //if (targetChannel) //I believe this is unncessary. If we came here the channel name HAS to exist. This definitely needs some testing though
-                targetChannel->broadcastMessage(message, client);
+            std::string message;
+            for (size_t i = 0; i < getArguments().size(); ++i)
+            {
+                message += getArguments()[i];
+                if (i < getArguments().size() - 1)  // Add a space between words
+                    message += " ";
+            }
+            if (!targetIsUser())
+            {
+                Client* recipient = _server.getClientByName(getChannelName());
+                std::string privMsg = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + recipient->getNickName() + " " + message;
+                recipient->sendMessageToClient(privMsg);        
+            }
+            else
+            {
+                Channel* targetChannel = _server.findChannel(getChannelName());
+            //   std::cout << std::endl <<std::endl << "Broadcast to: " << targetChannel->getTopic() << std::endl <<std::endl;
+                //if (targetChannel) //I believe this is unncessary. If we came here the channel name HAS to exist. This definitely needs some testing though
+                    targetChannel->broadcastMessage(message, client);
+            }
         }
     }
 }
