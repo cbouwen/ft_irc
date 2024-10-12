@@ -20,6 +20,12 @@ const std::vector<std::string>   Command::getArguments() const
     return _arguments;
 }
 
+void    Command::getAuthenticated(std::string input, Client& client)
+{
+    (void)input;
+    client.sendMessageToClient("You are unauthorized in netcat");
+}
+
 void    Command::parseStr(std::string str)
 {
     std::vector<std::string>    words;

@@ -27,6 +27,7 @@ class Command
 
         void    parseStr(std::string str);
         void    parseCMD(std::string input, Client& client);
+        void    getAuthenticated(std::string input, Client& client);
 
         void    addPrivileges(Client& client);
         void    removePrivileges(Client& client);

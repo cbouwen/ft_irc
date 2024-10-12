@@ -197,12 +197,18 @@ void    Server::AcceptNewClient()
             close(incFD);
             return;
         }
+        std::string welcomeMessage = ":serverhostname 001 " + newClient.getNickName() + " :Welcome to the IRC network, " + newClient.getNickName() + "!\r\n";
+	    newClient.sendMessageToClient(welcomeMessage);
+        newClient.setAuthorized();
+    }
+    else 
+    {
+        std::string welcomeMessage = ":serverhostname 001 :Welcome to the IRC network!\r\n";
+	    newClient.sendMessageToClient(welcomeMessage);
     }
     _clients.push_back(newClient);
     _fds.push_back(newPoll);
 
-    std::string welcomeMessage = ":serverhostname 001 " + newClient.getNickName() + " :Welcome to the IRC network, " + newClient.getNickName() + "!\r\n";
-	newClient.sendMessageToClient(welcomeMessage);
 
     std::cout << "Client <" << incFD << "> Connected" << std::endl;
 
@@ -295,10 +301,10 @@ void    Server::ReceiveNewData(int fd)
         Client* client = getClientByFD(fd); //error handling or okay? FT can't be called if fd does not exist in vector
         buffer[bytes] = '\0';
         std::cout << "Client <" << fd << "> Data: " << buffer; //Think we can remove this or at least change it. getNickname() instead of Client <fd>
-        //if not yet authenticated
-            //cmd.getauthenticated
-        //else
-        cmd.parseCMD(buffer, *client);
+        if (client->getAuthorized() == false)    
+            cmd.getAuthenticated(buffer, *client);
+        else
+            cmd.parseCMD(buffer, *client);
     }
 }
 
