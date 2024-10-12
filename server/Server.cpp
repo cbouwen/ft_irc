@@ -184,6 +184,7 @@ void    Server::AcceptNewClient()
     newPoll.revents = 0;
 
     userData = receiveUserData(newPoll.fd);
+    //nc will get stuck in the above here. If we can find a way to recognize nc here and then are able to break off here and go to a new function like authenticateNCclient then all the problems are solved
     newClient.setFD(incFD);
     newClient.setIPaddr(inet_ntoa((clientAddr.sin_addr)));
     newClient.setUserData(userData);
@@ -281,19 +282,19 @@ void    Server::ReceiveNewData(int fd)
     {
         std::cout << "Client <" << fd << "> disconnected" << std::endl;
         ClearClient(fd);
-        //remove fd from vector _pollfd
         close(fd);
     }
     else
     {
         class Command cmd(*this, "");
         Client* client = getClientByFD(fd); //error handling or okay? FT can't be called if fd does not exist in vector
+        (void)client;
         buffer[bytes] = '\0';
         std::cout << "Client <" << fd << "> Data: " << buffer; //Think we can remove this or at least change it. getNickname() instead of Client <fd>
-        cmd.parseCMD(buffer, *client);
-        //Check data
-        //Handle commands
-        //ETC
+        //if not yet authenticated
+            //cmd.getauthenticated
+        //else
+    //    cmd.parseCMD(buffer, *client);
     }
 }
 
