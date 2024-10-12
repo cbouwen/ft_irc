@@ -28,6 +28,8 @@ class Client
 
         void        setFD(int fd);
         void        setAuthorized();
+        void        setNickname(std::string);
+        void        setUsername();
         void        setIPaddr(std::string IPaddr);
         const std::string   getNickName() const;
         const std::string   getUserName() const;

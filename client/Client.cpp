@@ -20,6 +20,11 @@ void    Client::setAuthorized()
     _authorized = true;
 }
 
+void	Client::setNickname(std::string newNickname)
+{
+	_nickName = newNickname;
+}
+
 void    Client::setFD(int fd)
 {
     _fd = fd;

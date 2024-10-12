@@ -1,4 +1,5 @@
-#pragma once
+#ifndef COMMAND_HPP
+#define COMMAND_HPP
 
 #include <string>
 #include <sstream>
@@ -39,6 +40,10 @@ class Command
         void    joinChannel(Client& client);
 
         void    handleTopic(Client&);
+
+        bool    nicknameUnique(std::string newNickname);
 };
 
 std::ostream& operator <<(std::ostream& os, const Command& command);
+
+#endif

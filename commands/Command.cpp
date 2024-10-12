@@ -22,8 +22,31 @@ const std::vector<std::string>   Command::getArguments() const
 
 void    Command::getAuthenticated(std::string input, Client& client)
 {
-    (void)input;
-    client.sendMessageToClient("You are unauthorized in netcat");
+//    static bool     passwordMatch;
+    static bool     nicknameSet;
+//    static bool     usernameSet;
+
+    parseStr(input);//does this come in the same way as irssi?
+
+    if (getCommand() == "NICK")
+    {
+		if (_channelName.empty())
+			std::cerr << "Not enough parameters" << std::endl; //where does this message end up? serverside? delete if yes
+        else if (!nicknameUnique(_channelName)) //is this where the nickname is??
+			std::cerr << "Choose a unique nickname" << std::endl;
+        else
+        {
+            client.setNickname(_channelName);
+            nicknameSet = true;
+        }
+    }
+    /*
+    else if (getCommand() == "USER")
+        setUsername(client, _arguments[0]); 
+    else if (getCommand() == "PASS")
+        checkPassword(client, _arguments[0]); 
+*/
+    client.sendMessageToClient("Please use either NICK, PASS or USER to authorize");
 }
 
 void    Command::parseStr(std::string str)
