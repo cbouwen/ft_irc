@@ -183,19 +183,21 @@ void    Server::AcceptNewClient()
     newPoll.events = POLLIN;
     newPoll.revents = 0;
 
-    userData = receiveUserData(newPoll.fd);
-    //nc will get stuck in the above here. If we can find a way to recognize nc here and then are able to break off here and go to a new function like authenticateNCclient then all the problems are solved
     newClient.setFD(incFD);
     newClient.setIPaddr(inet_ntoa((clientAddr.sin_addr)));
-    newClient.setUserData(userData);
-    if (newClient.getPassword() != this->_password)
+    userData = receiveUserData(newPoll.fd);
+    //nc will get stuck in the above here. If we can find a way to recognize nc here and then are able to break off here and go to a new function like authenticateNCclient then all the problems are solved
+    if (userData != "NC")
     {
-        std::string msg = "Incorrect password: " + newClient.getPassword() + "\r\n";
-        newClient.sendMessageToClient(msg);
-        close(incFD);
-        return;
+        newClient.setUserData(userData);
+        if (newClient.getPassword() != this->_password)
+        {
+            std::string msg = "Incorrect password: " + newClient.getPassword() + "\r\n";
+            newClient.sendMessageToClient(msg);
+            close(incFD);
+            return;
+        }
     }
-
     _clients.push_back(newClient);
     _fds.push_back(newPoll);
 
@@ -212,11 +214,12 @@ std::string	Server::receiveUserData(int &fd)
 	std::string str;
 	bool user_received = false;
 	size_t pos;
-	
-    while (!user_received)
-    {
-		buffer += readUserData(fd);
+    int     i = 0;
 
+	buffer += readUserData(fd);
+    while (!user_received) //Keeps parsing until str contains "USER". IRSSI does this everytime, NC does not
+    {
+        i++; //to measure the timeout to find nc
 		while ((pos = buffer.find("\r\n")) != std::string::npos)
         {
 			str += buffer.substr(0, pos); // Extract the complete message
@@ -231,7 +234,9 @@ std::string	Server::receiveUserData(int &fd)
 				break;
 			}
 		}
-
+		buffer += readUserData(fd);
+        if (i > 100) //timeout
+            return "NC";
 //		if (user_received)
 //			std::cout << "Full USER command received: " << str << std::endl; //Testing purposes, fluff. Can let this in or remove it
 	}
@@ -288,13 +293,12 @@ void    Server::ReceiveNewData(int fd)
     {
         class Command cmd(*this, "");
         Client* client = getClientByFD(fd); //error handling or okay? FT can't be called if fd does not exist in vector
-        (void)client;
         buffer[bytes] = '\0';
         std::cout << "Client <" << fd << "> Data: " << buffer; //Think we can remove this or at least change it. getNickname() instead of Client <fd>
         //if not yet authenticated
             //cmd.getauthenticated
         //else
-    //    cmd.parseCMD(buffer, *client);
+        cmd.parseCMD(buffer, *client);
     }
 }
 
