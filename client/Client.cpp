@@ -2,7 +2,7 @@
 
 Client::Client()
 {
-
+	_authorized = false;
 }
 
 Client::~Client()
@@ -13,6 +13,11 @@ Client::~Client()
 int Client::getFD() const
 {
     return _fd;
+}
+
+void    Client::setAuthorized()
+{
+    _authorized = true;
 }
 
 void    Client::setFD(int fd)
@@ -48,6 +53,11 @@ const std::string   Client::getHostName() const
 const std::string   Client::getFullName() const
 {
     return _fullName;
+}
+
+bool	Client::getAuthorized()
+{
+	return _authorized;
 }
 
 std::vector<std::string> Client::split(std::string str)
