@@ -203,8 +203,10 @@ void    Server::AcceptNewClient()
     }
     else 
     {
-        std::string welcomeMessage = ":serverhostname 001 :Welcome to the IRC network!\r\n";
-	    newClient.sendMessageToClient(welcomeMessage);
+    //    std::string welcomeMessage = "Welcome to the IRC network!\r\n"; //is this part of the server handshake? Maybe delete this and just ask for authorization
+	//    newClient.sendMessageToClient(welcomeMessage);
+        std::string authorizeMessage = "Please get authorized by setting NICK, USER and PASS\r\n";
+	    newClient.sendMessageToClient(authorizeMessage);
     }
     _clients.push_back(newClient);
     _fds.push_back(newPoll);

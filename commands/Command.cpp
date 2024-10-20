@@ -22,22 +22,61 @@ const std::vector<std::string>   Command::getArguments() const
 
 void    Command::getAuthenticated(std::string input, Client& client)
 {
-    (void)input;
-    client.sendMessageToClient("You are unauthorized in netcat");
+    try
+    {
+        parseStr(input);//does this come in the same way as irssi?
+
+    if (getCommand() == "NICK")
+    {
+		if (_arguments.size() > 0)
+            throw std::runtime_error("Nickname can only accept 1 parameter");
+        else
+            client.setNickname(_channelName, _server);
+    }
+    else if (getCommand() == "USER")
+        client.setUsername(_channelName, _arguments); //check parse first
+    else if (getCommand() == "PASS")
+    {
+        if (client.getPasswordMatch() == true)
+            throw std::runtime_error("Password is already correct!");
+        else if (_arguments.size() > 0) //this statement could be wrong. need tests
+            throw std::runtime_error("Please use 1 parameter for the password");
+        else
+            checkPassword(client, _channelName, _server.getPassword()); 
+    }
+
+    if (client.checkAuthorized() == true)
+    {
+        client.setAuthorized();
+        client.sendMessageToClient("You are now authorized to use the irc server");
+        std::string welcomeMessage = ":serverhostname 001 " + client.getNickName() + " :Welcome to the IRC network, " + client.getNickName() + "!\r\n";
+	    client.sendMessageToClient(welcomeMessage);
+        std::cout << client << std::endl;
+    }
+    else
+        client.sendMessageToClient("Please set NICK, PASS and USER to authorize");
+    }
+    catch (const std::exception& e) // Catch error
+    {
+        client.sendMessageToClient(e.what()); // Send error message to client
+        std::cerr << "Error: " << e.what() << std::endl; // Log the error
+    }
 }
 
-void    Command::parseStr(std::string str)
+void    Command::parseStr(std::string str) //need to add in a throw here that will handle an empty input + empty arguments
 {
     std::vector<std::string>    words;
     std::string                 word;
     std::stringstream           stream(str);
 
+    
+    
     while (stream >> word)
         words.push_back(word);
     
     this->_command = words.front();
     words.erase(words.begin());
-    if (getCommand() == "INVITE") //only when command is invite does irssi switch order in arguments. Check reference below
+    if (getCommand() == "INVITE") //only when command is invite does irssi switch order in arguments. does nc do this too?
     {
         this->_arguments.push_back(words.front());
         words.erase(words.begin());
@@ -86,7 +125,9 @@ void    Command::parseCMD(std::string input, Client& client)
 {
     parseStr(input);
 
-    if (getCommand() == "JOIN")
+    if (getCommand() == "NICK")
+        client.setNickname(_channelName, _server);
+    else if (getCommand() == "JOIN")
         joinChannel(client);
     else if (getCommand() == "TOPIC")
         handleTopic(client);
@@ -290,55 +331,3 @@ std::ostream& operator<<(std::ostream &os, const Command& command)
     os << std::endl;
     return os;
 }
-
-
-//This is a reference guide as to how the input and commands are given as input and how irssi sends them to the server.
-//"Client <4> Data:", "Input = ", and "Rest of stream = " is my print message. Ignore this
-//@Matisse, @yannick: Leave this in till end of project for easier troubleshooting
-
-/*
-/join general:
-""
-Client <4> Data: JOIN #general
-Input = JOIN
-Rest of stream =  #general
-""
-
-//FOLLOWING IS AFTER WE JOINED THE "GENERAL" CHANNEL
-
-/topic kaas:
-"
-Client <4> Data: TOPIC #general :kaas
-Input = TOPIC
-Rest of stream =  #general :kaas
-"
-
-/kick matisse:
-"
-Client <4> Data: KICK #general matisse :
-Input = KICK
-Rest of stream =  #general matisse :
-"
-
-/mode +i
-"
-Client <4> Data: MODE #general +i
-Input = MODE
-Rest of stream =  #general +i
-"
-
-/invite matisse:
-"
-Client <4> Data: INVITE matisse #general
-Input = INVITE
-Rest of stream =  matisse #general
-"
-
-/hi there:
-"
-Client <4> Data: PRIVMSG #general :hi there
-Input = PRIVMSG
-Rest of stream =  #general :hi there
-"
-
-*/
