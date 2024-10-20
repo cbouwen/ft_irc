@@ -9,3 +9,27 @@ bool    Command::nicknameUnique(std::string newNickname)
     }
     return true;
 }
+
+void    Command::checkPassword(Client& client, std::string userPassword, std::string serverPassword)
+{
+    if (userPassword == serverPassword)
+    {
+        client.sendMessageToClient("Password correct!");
+        client.setPasswordMatch();
+    }
+    else
+        client.sendMessageToClient("Password incorrect");
+}
+
+void    Client::setNickname(std::string newNickname)
+{
+
+    std::cout << "nickname test: " << newNickname << std::endl;
+
+}
+
+void    Client::setUsername(std::vector<std::string> arguments)
+{
+    (void)arguments;
+//    std::cout << arguments << std::endl;
+}

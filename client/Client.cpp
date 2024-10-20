@@ -2,6 +2,9 @@
 
 Client::Client()
 {
+	_passwordMatch = false;
+	_nicknameSet = false;
+	_usernameSet = false;
 	_authorized = false;
 }
 
@@ -20,10 +23,24 @@ void    Client::setAuthorized()
     _authorized = true;
 }
 
+bool	Client::checkAuthorized()
+{
+	if (_passwordMatch == false)
+		return false;
+	if (_nicknameSet == false)
+		return false;
+	if (_usernameSet == false)
+		return false;
+	return true;
+}
+
+//This is now part of init authorisation. let's see if this matches.
+/*
 void	Client::setNickname(std::string newNickname)
 {
 	_nickName = newNickname;
 }
+*/
 
 void    Client::setFD(int fd)
 {
@@ -35,9 +52,29 @@ void    Client::setIPaddr(std::string IPaddr)
     _IPaddr = IPaddr;
 }
 
+void    Client::setPasswordMatch()
+{
+    _passwordMatch = true;
+}
+
+void    Client::setUsernameSet()
+{
+    _usernameSet = true;
+}
+
+void    Client::setNicknameSet()
+{
+    _nicknameSet = true;
+}
+
 const std::string   Client::getPassword() const
 {
     return _userPassword;
+}
+
+bool   Client::getPasswordMatch() const
+{
+    return _passwordMatch;
 }
 
 const std::string   Client::getNickName() const

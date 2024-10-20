@@ -22,31 +22,34 @@ const std::vector<std::string>   Command::getArguments() const
 
 void    Command::getAuthenticated(std::string input, Client& client)
 {
-//    static bool     passwordMatch;
-    static bool     nicknameSet;
-//    static bool     usernameSet;
-
     parseStr(input);//does this come in the same way as irssi?
 
     if (getCommand() == "NICK")
     {
 		if (_channelName.empty())
 			std::cerr << "Not enough parameters" << std::endl; //where does this message end up? serverside? delete if yes
-        else if (!nicknameUnique(_channelName)) //is this where the nickname is??
-			std::cerr << "Choose a unique nickname" << std::endl;
         else
-        {
             client.setNickname(_channelName);
-            nicknameSet = true;
-        }
     }
-    /*
     else if (getCommand() == "USER")
-        setUsername(client, _arguments[0]); 
+        client.setUsername(_arguments); //check parse first
     else if (getCommand() == "PASS")
-        checkPassword(client, _arguments[0]); 
-*/
-    client.sendMessageToClient("Please use either NICK, PASS or USER to authorize");
+    {
+        if (client.getPasswordMatch() == true)
+            client.sendMessageToClient("Password is already correct!");
+        else if (_arguments.size() > 0 || _channelName.empty()) //this statement could be wrong. need tests
+            client.sendMessageToClient("Please use 1 parameter for the password");
+        else
+            checkPassword(client, _channelName, _server.getPassword()); 
+    }
+
+    if (client.checkAuthorized() == true)
+    {
+        client.setAuthorized();
+        client.sendMessageToClient("You are now authorized to use the irc server");
+    }
+    else
+        client.sendMessageToClient("Please set NICK, PASS and USER to authorize");
 }
 
 void    Command::parseStr(std::string str)
@@ -60,7 +63,7 @@ void    Command::parseStr(std::string str)
     
     this->_command = words.front();
     words.erase(words.begin());
-    if (getCommand() == "INVITE") //only when command is invite does irssi switch order in arguments. Check reference below
+    if (getCommand() == "INVITE") //only when command is invite does irssi switch order in arguments. does nc do this too?
     {
         this->_arguments.push_back(words.front());
         words.erase(words.begin());
@@ -313,55 +316,3 @@ std::ostream& operator<<(std::ostream &os, const Command& command)
     os << std::endl;
     return os;
 }
-
-
-//This is a reference guide as to how the input and commands are given as input and how irssi sends them to the server.
-//"Client <4> Data:", "Input = ", and "Rest of stream = " is my print message. Ignore this
-//@Matisse, @yannick: Leave this in till end of project for easier troubleshooting
-
-/*
-/join general:
-""
-Client <4> Data: JOIN #general
-Input = JOIN
-Rest of stream =  #general
-""
-
-//FOLLOWING IS AFTER WE JOINED THE "GENERAL" CHANNEL
-
-/topic kaas:
-"
-Client <4> Data: TOPIC #general :kaas
-Input = TOPIC
-Rest of stream =  #general :kaas
-"
-
-/kick matisse:
-"
-Client <4> Data: KICK #general matisse :
-Input = KICK
-Rest of stream =  #general matisse :
-"
-
-/mode +i
-"
-Client <4> Data: MODE #general +i
-Input = MODE
-Rest of stream =  #general +i
-"
-
-/invite matisse:
-"
-Client <4> Data: INVITE matisse #general
-Input = INVITE
-Rest of stream =  matisse #general
-"
-
-/hi there:
-"
-Client <4> Data: PRIVMSG #general :hi there
-Input = PRIVMSG
-Rest of stream =  #general :hi there
-"
-
-*/
