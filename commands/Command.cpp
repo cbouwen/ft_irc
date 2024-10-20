@@ -22,23 +22,25 @@ const std::vector<std::string>   Command::getArguments() const
 
 void    Command::getAuthenticated(std::string input, Client& client)
 {
-    parseStr(input);//does this come in the same way as irssi?
+    try
+    {
+        parseStr(input);//does this come in the same way as irssi?
 
     if (getCommand() == "NICK")
     {
-		if (_channelName.empty())
-			std::cerr << "Not enough parameters" << std::endl; //where does this message end up? serverside? delete if yes
+		if (_arguments.size() > 0)
+            throw std::runtime_error("Nickname can only accept 1 parameter");
         else
-            client.setNickname(_channelName);
+            client.setNickname(_channelName, _server);
     }
     else if (getCommand() == "USER")
-        client.setUsername(_arguments); //check parse first
+        client.setUsername(_channelName, _arguments); //check parse first
     else if (getCommand() == "PASS")
     {
         if (client.getPasswordMatch() == true)
-            client.sendMessageToClient("Password is already correct!");
-        else if (_arguments.size() > 0 || _channelName.empty()) //this statement could be wrong. need tests
-            client.sendMessageToClient("Please use 1 parameter for the password");
+            throw std::runtime_error("Password is already correct!");
+        else if (_arguments.size() > 0) //this statement could be wrong. need tests
+            throw std::runtime_error("Please use 1 parameter for the password");
         else
             checkPassword(client, _channelName, _server.getPassword()); 
     }
@@ -47,17 +49,28 @@ void    Command::getAuthenticated(std::string input, Client& client)
     {
         client.setAuthorized();
         client.sendMessageToClient("You are now authorized to use the irc server");
+        std::string welcomeMessage = ":serverhostname 001 " + client.getNickName() + " :Welcome to the IRC network, " + client.getNickName() + "!\r\n";
+	    client.sendMessageToClient(welcomeMessage);
+        std::cout << client << std::endl;
     }
     else
         client.sendMessageToClient("Please set NICK, PASS and USER to authorize");
+    }
+    catch (const std::exception& e) // Catch error
+    {
+        client.sendMessageToClient(e.what()); // Send error message to client
+        std::cerr << "Error: " << e.what() << std::endl; // Log the error
+    }
 }
 
-void    Command::parseStr(std::string str)
+void    Command::parseStr(std::string str) //need to add in a throw here that will handle an empty input + empty arguments
 {
     std::vector<std::string>    words;
     std::string                 word;
     std::stringstream           stream(str);
 
+    
+    
     while (stream >> word)
         words.push_back(word);
     
@@ -112,7 +125,9 @@ void    Command::parseCMD(std::string input, Client& client)
 {
     parseStr(input);
 
-    if (getCommand() == "JOIN")
+    if (getCommand() == "NICK")
+        client.setNickname(_channelName, _server);
+    else if (getCommand() == "JOIN")
         joinChannel(client);
     else if (getCommand() == "TOPIC")
         handleTopic(client);

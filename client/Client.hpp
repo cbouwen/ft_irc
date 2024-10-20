@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <sys/socket.h>
 
+class Server;
 
 class Client
 {
@@ -33,8 +34,8 @@ class Client
 
         void        setFD(int fd);
         void        setAuthorized();
-        void        setNickname(std::string);
-        void        setUsername(std::vector<std::string>);
+        void        setNickname(std::string, Server);
+        void        setUsername(std::string, std::vector<std::string>);
 //        void        setUsername();
         void        setIPaddr(std::string IPaddr);
         void        setPasswordMatch();
@@ -54,6 +55,7 @@ class Client
         std::vector<std::string> split(std::string str);
         void    setUserData(std::string userData);
 
+        bool    nicknameUnique(std::string newNickname, Server _server);
         void    sendMessageToClient(std::string message) const;
 };
 

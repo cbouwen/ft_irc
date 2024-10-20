@@ -41,8 +41,6 @@ class Command
 
         void    handleTopic(Client&);
 
-        bool    nicknameUnique(std::string newNickname);
-
         void    checkPassword(Client&, std::string, std::string);
 };
 
