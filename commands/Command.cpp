@@ -69,8 +69,6 @@ void    Command::parseStr(std::string str) //need to add in a throw here that wi
     std::string                 word;
     std::stringstream           stream(str);
 
-    
-    
     while (stream >> word)
         words.push_back(word);
     
@@ -160,9 +158,10 @@ void    Command::parseCMD(std::string input, Client& client)
         else
         {
             Channel* targetChannel = _server.findChannel(getChannelName());
-         //   std::cout << std::endl <<std::endl << "Broadcast to: " << targetChannel->getTopic() << std::endl <<std::endl;
-            //if (targetChannel) //I believe this is unncessary. If we came here the channel name HAS to exist. This definitely needs some testing though
+            if (targetChannel->findUser(client))
                 targetChannel->broadcastMessage(message, client);
+            else
+                client.sendMessageToClient("You are not part of this channel");
         }
     }
 }

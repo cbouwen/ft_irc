@@ -38,6 +38,8 @@ class Channel
         bool    checkIsInvited(Client &client) const;
         bool    checkOperatorStatus(Client &client) const;
 
+        bool    findUser(Client&);
+
         void    giveOperatorStatus(Client &client, Client*);
         void    removeOperatorStatus(Client &client, Client*);
         void    setInviteOnly(int a, Client& client);

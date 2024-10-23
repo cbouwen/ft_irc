@@ -45,6 +45,16 @@ const std::string   Channel::getTopic() const
     return _topic;
 }
 
+bool    Channel::findUser(Client &targetClient)
+{
+    for (size_t i = 0; i < _users.size(); ++i)
+    {
+        if (_users[i]->getNickName() == targetClient.getNickName())
+            return true;
+    }
+    return false;
+}
+
 void    Channel::setUp(std::string channelName)
 {
     _topic = channelName;
