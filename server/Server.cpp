@@ -167,6 +167,8 @@ void    Server::AcceptNewClient()
     int                 incFD;
     std::string         userData;
 
+    try
+    {
     incFD = accept(_serverSocketFD, (sockaddr *)&(clientAddr), &len);
     if (incFD == -1)
     {
@@ -213,7 +215,13 @@ void    Server::AcceptNewClient()
 
 
     std::cout << "Client <" << incFD << "> Connected" << std::endl;
+    }
+    catch (const std::exception& e) // Catch error
+    {
+        newClient.sendMessageToClient(e.what()); // Send error message to client
+        std::cerr << "Error: " << e.what() << std::endl; // Log the error
 
+    }
 }
 
 std::string	Server::receiveUserData(int &fd)

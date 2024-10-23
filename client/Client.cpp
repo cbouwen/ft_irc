@@ -113,6 +113,12 @@ std::vector<std::string> Client::split(std::string str)
 	return words;
 }
 
+
+bool Client::findPass(const std::vector<std::string>& words)
+{
+    return std::find(words.begin(), words.end(), "PASS") != words.end();
+}
+
 void    Client::setUserData(std::string userData)
 {
 	std::vector<std::string> words = split(userData);	
@@ -128,7 +134,9 @@ void    Client::setUserData(std::string userData)
 //	if (words.find("PASS") != std::string::npos)
 //		return; 
 //	std::cout << "testuserdata after if" << std::endl;
-	
+
+	if (!findPass(words))
+		throw std::runtime_error("No password given");
 	while (words.front().compare("PASS") != 0) //Concerned about error handling here. What happens when we can't find "PASS"? Client dc's and no problem?
 		words.erase(words.begin());
 	words.erase(words.begin());
