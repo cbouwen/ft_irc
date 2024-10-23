@@ -1,4 +1,7 @@
-#pragma once
+//#pragma once
+
+#ifndef SERVER_HPP
+# define SERVER_HPP
 
 #include <iostream>
 #include <vector>
@@ -64,3 +67,5 @@ class Server
         static void    SignalHandler(int signum);
 
 };
+
+#endif

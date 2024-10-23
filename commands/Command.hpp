@@ -1,8 +1,10 @@
-#pragma once
+//#pragma once
+
+#ifndef COMMAND_HPP
+# define COMMAND_HPP
 
 #include <string>
 #include <sstream>
-#include <vector>
 
 #include "../server/Server.hpp"
 #include "../channel/Channel.hpp"
@@ -45,3 +47,5 @@ class Command
 };
 
 std::ostream& operator <<(std::ostream& os, const Command& command);
+
+#endif

@@ -1,4 +1,7 @@
-#pragma once
+//#pragma once
+
+#ifndef CLIENT_HPP
+# define CLIENT_HPP
 
 #include <string>
 #include <iostream>
@@ -63,3 +66,5 @@ class Client
 };
 
 std::ostream& operator << (std::ostream& os, const Client& client);
+
+#endif

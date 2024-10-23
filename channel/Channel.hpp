@@ -1,4 +1,7 @@
-#pragma once
+//#pragma once
+
+#ifndef CHANNEL_HPP
+# define CHANNEL_HPP
 
 #include <vector>
 #include <algorithm>
@@ -51,3 +54,5 @@ class Channel
         void    broadcastMessageToAll(const std::string& message);
         void    broadcastMessage(const std::string& message, const Client& sender);
 };
+
+#endif
