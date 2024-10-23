@@ -3,13 +3,14 @@
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <vector>
+//#include <string>
+//#include <iostream>
+//#include <sstream>
+//#include <vector>
 #include <stdexcept>
-#include <sys/socket.h>
+//#include <sys/socket.h>
 #include <algorithm>
+
 #include "../server/Server.hpp"
 
 class Server;
