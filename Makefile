@@ -10,14 +10,14 @@ SRC_COMMANDS = $(addprefix ./commands/, Command.cpp Authorisation.cpp)
 SRC_SERVER = $(addprefix ./server/, Server.cpp)
 
 #Add header files here so they also re-compile
-#INC = ft_irc.hpp
+INC = Channel.hpp Client.hpp Command.hpp Server.hpp
 
 SRC = $(SRC_MAIN) $(SRC_CHANNEL) $(SRC_CLIENT) $(SRC_COMMANDS) $(SRC_SERVER)
 OBJ = $(SRC:.cpp=.o)
 
 all: $(NAME)
 
-%.o: %.cpp #$(INC))
+%.o: %.cpp $(INC)
 	$(CC) $(FLAGS) -c $< -o $@
 
 $(NAME): $(OBJ)
