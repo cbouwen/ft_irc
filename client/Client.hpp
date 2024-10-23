@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <sys/socket.h>
 #include <algorithm>
+#include "../server/Server.hpp"
 
 class Server;
 
@@ -55,7 +56,7 @@ class Client
         bool                findPass(const std::vector<std::string>&);
 
         std::vector<std::string> split(std::string str);
-        void    setUserData(std::string userData);
+        void    setUserData(std::string userData, Server _server);
 
         bool    nicknameUnique(std::string newNickname, Server _server);
         void    sendMessageToClient(std::string message) const;

@@ -27,7 +27,9 @@ void    Client::setNickname(std::string newNickname, Server _server)
     std::string tempNickname = newNickname;
     while (nicknameUnique(tempNickname, _server) == false)
     {
-        tempNickname += i;
+        std::stringstream ss;
+        ss << newNickname << i;
+        tempNickname = ss.str();
         i++;
         if (i == 6)
             throw std::runtime_error("Already 5 variants of this nickname exist. Please choose another");
@@ -36,11 +38,6 @@ void    Client::setNickname(std::string newNickname, Server _server)
     sendMessageToClient("Nickname is set!");
     setNicknameSet();
 }
-
-//USER cbouwen cbouwen localhost :Cedric Bouwen
-        std::string _userName;
-        std::string _hostName;
-        std::string _fullName;
 
 void    Client::setUsername(std::string username, std::vector<std::string> words)
 {
