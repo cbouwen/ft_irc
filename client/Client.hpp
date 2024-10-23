@@ -6,6 +6,7 @@
 #include <vector>
 #include <stdexcept>
 #include <sys/socket.h>
+#include <algorithm>
 
 class Server;
 
@@ -51,6 +52,7 @@ class Client
         const std::string   getFullName() const;
         bool                getAuthorized();
         bool                checkAuthorized();
+        bool                findPass(const std::vector<std::string>&);
 
         std::vector<std::string> split(std::string str);
         void    setUserData(std::string userData);
