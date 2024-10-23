@@ -300,23 +300,29 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
         return ;
     }
 
-    if (existingChannel->getInviteOnly() == false) //Needs more logic to implement it. solve this at INVITE
+    if (existingChannel->getInviteOnly() == false) //IF channel is invite only, skip all this
     {
-        if (existingChannel->getChannelPassword() == true)
+        if (existingChannel->getChannelPassword() == true) //IF channel is open to everyone and password is correct
         {
-            if (_arguments.size() > 0)
+            if (_arguments.size() > 0) //IF name of channel isn't missing
             {
                 if (_arguments[0] != existingChannel->getPassword())
                 {
                     std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + existingChannel->getTopic() + "Incorrect password";
                     std::cout << message << std::endl; //or send msg to client?
                 }
-              else
+                else
                 {
                     existingChannel->addUser(client);
                     std::string joinMessage = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " JOIN :" + existingChannel->getTopic();
                     existingChannel->broadcastMessage(joinMessage, client);
                     std::cout << "Succesfully added user -" << existingChannel->getUsers().back()->getNickName() << "- to -" << existingChannel->getTopic() << std::endl << std::endl;
+//                    if (!existingChannel->getTopicName().empty())
+  //                  {
+    //                    std::string clientMessage = ":server 332 " + client.getNickName() + " " + existingChannel->getTopic() + " :" + existingChannel->getTopicName();
+      //                  std::cout << clientMessage << std::endl;
+        //                client.sendMessageToClient(clientMessage);
+          //          } 
                 }
             }
             else
