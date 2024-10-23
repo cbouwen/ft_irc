@@ -84,8 +84,10 @@ void    Command::parseStr(std::string str) //need to add in a throw here that wi
 
     this->_command = words.front();
     words.erase(words.begin());
-    if (words.empty())
-        throw std::runtime_error("Add an argumant to your command.");
+
+	if (words.empty())
+		throw std::runtime_error("No arguments given.");
+  
     if (getCommand() == "INVITE") //only when command is invite does irssi switch order in arguments. does nc do this too?
     {
         this->_arguments.push_back(words.front());
