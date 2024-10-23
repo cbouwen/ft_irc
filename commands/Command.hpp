@@ -9,7 +9,7 @@
 #include "../server/Server.hpp"
 #include "../channel/Channel.hpp"
 
-class Server;
+//class Server;
 
 class Command : public Server, public Channel
 {
