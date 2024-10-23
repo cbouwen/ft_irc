@@ -9,7 +9,7 @@
 
 #include "../client/Client.hpp"
 
-class   Client;
+class Client;
 class Channel
 {
     private:

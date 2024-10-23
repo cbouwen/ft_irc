@@ -21,7 +21,7 @@ class Command
         std::string                 _channelName;
 
     public:
-        Command(Server& server,std::string init) : _server(server), _channelName(init) {} ;
+        Command(Server& server,std::string init) : _server(server), _channelName(init) /*{}*/ ;
         ~Command();
 
         const std::string getChannelName() const;
