@@ -9,9 +9,9 @@
 #include "../server/Server.hpp"
 #include "../channel/Channel.hpp"
 
-//class Server;
+class Server;
 
-class Command : public Server, public Channel
+class Command
 {
     private:
         std::string                 _command;
