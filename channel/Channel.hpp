@@ -3,9 +3,9 @@
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
-//#include <vector>
-//#include <algorithm>
-//#include <string>
+#include <vector>
+#include <algorithm>
+#include <string>
 
 #include "../client/Client.hpp"
 

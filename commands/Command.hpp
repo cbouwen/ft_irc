@@ -4,12 +4,14 @@
 # define COMMAND_HPP
 
 #include <string>
-//#include <sstream>
+#include <sstream>
 
 #include "../server/Server.hpp"
 #include "../channel/Channel.hpp"
+#include "../client/CLient.hpp"
 
 class Server;
+class Client;
 
 class Command
 {
