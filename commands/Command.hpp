@@ -1,5 +1,4 @@
-#ifndef COMMAND_HPP
-#define COMMAND_HPP
+#pragma once
 
 #include <string>
 #include <sstream>
@@ -46,5 +45,3 @@ class Command
 };
 
 std::ostream& operator <<(std::ostream& os, const Command& command);
-
-#endif
