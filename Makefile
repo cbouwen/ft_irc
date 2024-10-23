@@ -12,7 +12,7 @@ SRC_SERVER = $(addprefix ./server/, Server.cpp)
 #Add header files here so they also re-compile
 INC = Channel.hpp Client.hpp Command.hpp Server.hpp
 
-SRC = $(SRC_MAIN) $(SRC_CHANNEL) $(SRC_CLIENT) $(SRC_COMMANDS) $(SRC_SERVER)
+SRC = $(SRC_MAIN) $(SRC_SERVER) $(SRC_CHANNEL) $(SRC_CLIENT) $(SRC_COMMANDS)
 OBJ = $(SRC:.cpp=.o)
 
 all: $(NAME)
