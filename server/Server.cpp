@@ -191,7 +191,7 @@ void    Server::AcceptNewClient()
     //nc will get stuck in the above here. If we can find a way to recognize nc here and then are able to break off here and go to a new function like authenticateNCclient then all the problems are solved
     if (userData != "NC")
     {
-        newClient.setUserData(userData);
+        newClient.setUserData(userData, *this);
         if (newClient.getPassword() != this->_password)
         {
             std::string msg = "Incorrect password: " + newClient.getPassword() + "\r\n";

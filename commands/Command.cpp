@@ -76,18 +76,16 @@ void    Command::parseStr(std::string str) //need to add in a throw here that wi
     std::string                 word;
     std::stringstream           stream(str);
 
-	//function that checks if there are any chars in the ss
-
 	if (!findAlpha(str))
 		throw std::runtime_error("Command has to start with character, no spaces allowed.");
 
     while (stream >> word)
-	{
         words.push_back(word);
-	}
 
     this->_command = words.front();
     words.erase(words.begin());
+    if (words.empty())
+        throw std::runtime_error("Add an argumant to your command.");
     if (getCommand() == "INVITE") //only when command is invite does irssi switch order in arguments. does nc do this too?
     {
         this->_arguments.push_back(words.front());

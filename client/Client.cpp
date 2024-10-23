@@ -119,7 +119,7 @@ bool Client::findPass(const std::vector<std::string>& words)
     return std::find(words.begin(), words.end(), "PASS") != words.end();
 }
 
-void    Client::setUserData(std::string userData)
+void    Client::setUserData(std::string userData, Server _server)
 {
 	std::vector<std::string> words = split(userData);	
 
@@ -144,7 +144,7 @@ void    Client::setUserData(std::string userData)
 
 	words.erase(words.begin()); //extra skip. Don't really understand why but nickname got set as NICK if we didn't do this. Hey, it works.
 	words.erase(words.begin());
-	_nickName = *words.begin();
+	setNickname(*words.begin(), _server); ///////////////////////////
 
 	words.erase(words.begin());
 	words.erase(words.begin());
