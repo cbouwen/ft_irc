@@ -3,6 +3,7 @@
 
 #include <string>
 #include <sstream>
+#include <vector>
 
 #include "../server/Server.hpp"
 #include "../channel/Channel.hpp"

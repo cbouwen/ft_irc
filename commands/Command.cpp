@@ -63,15 +63,29 @@ void    Command::getAuthenticated(std::string input, Client& client)
     }
 }
 
+bool	findAlpha(std::string str)
+{
+	if (isalpha(str[0]))
+		return true;
+	return false;
+}
+
 void    Command::parseStr(std::string str) //need to add in a throw here that will handle an empty input + empty arguments
 {
     std::vector<std::string>    words;
     std::string                 word;
     std::stringstream           stream(str);
 
+	//function that checks if there are any chars in the ss
+
+	if (!findAlpha(str))
+		throw std::runtime_error("Command has to start with character, no spaces allowed.");
+
     while (stream >> word)
+	{
         words.push_back(word);
-    
+	}
+
     this->_command = words.front();
     words.erase(words.begin());
     if (getCommand() == "INVITE") //only when command is invite does irssi switch order in arguments. does nc do this too?
@@ -121,48 +135,56 @@ void    Command::handleTopic(Client& client)
 
 void    Command::parseCMD(std::string input, Client& client)
 {
-    parseStr(input);
+	try
+	{
+		parseStr(input);
 
-    if (getCommand() == "NICK")
-        client.setNickname(_channelName, _server);
-    else if (getCommand() == "JOIN")
-        joinChannel(client);
-    else if (getCommand() == "TOPIC")
-        handleTopic(client);
-    else if (getCommand() == "KICK")
-        executeKick(client, _arguments[0]);
-    else if (getCommand() == "INVITE")
-        executeInvite(client, _arguments[0]);
-    else if (getCommand() == "MODE")
+		if (getCommand() == "NICK")
+			client.setNickname(_channelName, _server);
+		else if (getCommand() == "JOIN")
+			joinChannel(client);
+		else if (getCommand() == "TOPIC")
+			handleTopic(client);
+		else if (getCommand() == "KICK")
+			executeKick(client, _arguments[0]);
+		else if (getCommand() == "INVITE")
+			executeInvite(client, _arguments[0]);
+		else if (getCommand() == "MODE")
+		{
+			if (_arguments[0][0] == '+')
+				addPrivileges(client);
+			else if (_arguments[0][0] == '-')
+				removePrivileges(client); 
+		}
+		else if (getCommand() == "PRIVMSG")
+		{
+			std::string message;
+			for (size_t i = 0; i < getArguments().size(); ++i)
+			{
+				message += getArguments()[i];
+				if (i < getArguments().size() - 1)  // Add a space between words
+					message += " ";
+			}
+			if (!targetIsUser())
+			{
+				Client* recipient = _server.getClientByName(getChannelName());
+				std::string privMsg = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + recipient->getNickName() + " " + message;
+				recipient->sendMessageToClient(privMsg);        
+			}
+			else
+			{
+				Channel* targetChannel = _server.findChannel(getChannelName());
+				if (targetChannel->findUser(client))
+					targetChannel->broadcastMessage(message, client);
+				else
+					client.sendMessageToClient("You are not part of this channel");
+			}
+		}
+	}
+	catch (const std::exception& e) // Catch error
     {
-        if (_arguments[0][0] == '+')
-            addPrivileges(client);
-        else if (_arguments[0][0] == '-')
-            removePrivileges(client); 
-    }
-    else if (getCommand() == "PRIVMSG")
-    {
-        std::string message;
-        for (size_t i = 0; i < getArguments().size(); ++i)
-        {
-            message += getArguments()[i];
-            if (i < getArguments().size() - 1)  // Add a space between words
-                message += " ";
-        }
-        if (!targetIsUser())
-        {
-            Client* recipient = _server.getClientByName(getChannelName());
-            std::string privMsg = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + recipient->getNickName() + " " + message;
-            recipient->sendMessageToClient(privMsg);        
-        }
-        else
-        {
-            Channel* targetChannel = _server.findChannel(getChannelName());
-            if (targetChannel->findUser(client))
-                targetChannel->broadcastMessage(message, client);
-            else
-                client.sendMessageToClient("You are not part of this channel");
-        }
+        client.sendMessageToClient(e.what()); // Send error message to client
+        std::cerr << "Error: " << e.what() << std::endl; // Log the error
     }
 }
 
