@@ -320,12 +320,6 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
                     std::string joinMessage = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " JOIN :" + existingChannel->getTopic();
                     existingChannel->broadcastMessage(joinMessage, client);
                     std::cout << "Succesfully added user -" << existingChannel->getUsers().back()->getNickName() << "- to -" << existingChannel->getTopic() << std::endl << std::endl;
-//                    if (!existingChannel->getTopicName().empty())
-  //                  {
-    //                    std::string clientMessage = ":server 332 " + client.getNickName() + " " + existingChannel->getTopic() + " :" + existingChannel->getTopicName();
-      //                  std::cout << clientMessage << std::endl;
-        //                client.sendMessageToClient(clientMessage);
-          //          } 
                 }
             }
             else

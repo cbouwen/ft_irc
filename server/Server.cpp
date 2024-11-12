@@ -92,8 +92,8 @@ void    Server::ClearClient(int fd)
         {
             close(it->getFD());
             it = _clients.erase(it);//Client disconnects correctly but on server shutdown, clients disconnects again? Look into it
+            break;
         } 
-        break;
     }
     for (size_t i = 0; i < _fds.size(); i++)
     {
