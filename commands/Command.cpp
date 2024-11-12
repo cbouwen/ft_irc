@@ -99,6 +99,8 @@ void    Command::parseStr(std::string str) //need to add in a throw here that wi
         this->_channelName = words.front();
         words.erase(words.begin());
         this->_arguments.insert(_arguments.end(), words.begin(), words.end());
+        if ((getCommand() != "PASS" && getCommand() != "NICK" && getCommand() != "JOIN") && _arguments.empty())
+            throw std::runtime_error("Add one or more arguments to your command");
     }
 
     std::cout << std::endl << std::endl << *this << std::endl;
@@ -138,7 +140,8 @@ void    Command::parseCMD(std::string input, Client& client)
 	try
 	{
 		parseStr(input);
-
+        if (_channelName[0] != '#')
+            throw (std::runtime_error("Channelname has to start with #"));
 		if (getCommand() == "NICK")
 			client.setNickname(_channelName, _server);
 		else if (getCommand() == "JOIN")
