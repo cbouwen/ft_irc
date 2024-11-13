@@ -176,6 +176,8 @@ void    Command::parseCMD(std::string input, Client& client)
 			}
 			else
 			{
+                if (!_server.findChannel(getChannelName()))
+                    throw std::runtime_error("Channel not found");
 				Channel* targetChannel = _server.findChannel(getChannelName());
 				if (targetChannel->findUser(client))
 					targetChannel->broadcastMessage(message, client);
