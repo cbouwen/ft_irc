@@ -99,7 +99,7 @@ void    Command::parseStr(std::string str) //need to add in a throw here that wi
         this->_channelName = words.front();
         words.erase(words.begin());
         this->_arguments.insert(_arguments.end(), words.begin(), words.end());
-        if ((getCommand() != "PASS" && getCommand() != "NICK" && getCommand() != "JOIN") && _arguments.empty())
+        if ((getCommand() != "PASS" && getCommand() != "NICK" && getCommand() != "JOIN" && getCommand() == "TOPIC") && _arguments.empty())
             throw std::runtime_error("Add one or more arguments to your command");
     }
 
@@ -305,16 +305,16 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
         return ;
     }
 
-    if (existingChannel->getInviteOnly() == false) //IF channel is invite only, skip all this
+    if (existingChannel->getInviteOnly() == false) //IF channel is NOT invite only
     {
-        if (existingChannel->getChannelPassword() == true) //IF channel is open to everyone and password is correct
+        if (existingChannel->getChannelPassword() == true) //IF channel is set to PasswordNeeded
         {
-            if (_arguments.size() > 0) //IF name of channel isn't missing
+            if (_arguments.size() > 0) //IF password isn't missing
             {
-                if (_arguments[0] != existingChannel->getPassword())
+                if (_arguments[0] != existingChannel->getPassword()) //if Password does not match
                 {
                     std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + existingChannel->getTopic() + "Incorrect password";
-                    std::cout << message << std::endl; //or send msg to client?
+                    client.sendMessageToClient(message);
                 }
                 else
                 {
@@ -327,7 +327,7 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
             else
             {
                 std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + existingChannel->getTopic() + "You have to enter a password";
-                std::cout << message << std::endl; //or send msg to client?
+                client.sendMessageToClient(message);
             }
         }
         else
@@ -339,7 +339,7 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
     else
     {
         std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + existingChannel->getTopic() + " Channel is for invite only";
-        std::cout << message << std::endl; //or send msg to client?
+        client.sendMessageToClient(message);
     }
 }
 
