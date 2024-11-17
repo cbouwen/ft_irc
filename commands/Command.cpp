@@ -364,13 +364,15 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
             {
                 if (_arguments[0] != existingChannel->getPassword()) //if Password does not match
                 {
-                    std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + existingChannel->getTopic() + "Incorrect password";
+                    std::string message = ":" + client.getNickName() + " Incorrect password";
+                    //std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + existingChannel->getTopic() + "Incorrect password";
                     client.sendMessageToClient(message);
                 }
                 else
                 {
                     existingChannel->addUser(client);
-                    std::string joinMessage = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " JOIN :" + existingChannel->getTopic();
+                    //std::string joinMessage = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " JOIN :" + existingChannel->getTopic();
+                    std::string joinMessage = ":" + client.getNickName() + " has joined the channel.";
                     existingChannel->broadcastMessage(joinMessage, client);
                     std::cout << "Succesfully added user -" << existingChannel->getUsers().back()->getNickName() << "- to -" << existingChannel->getTopic() << std::endl << std::endl;
                 }
