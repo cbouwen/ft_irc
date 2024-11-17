@@ -140,6 +140,17 @@ void    Command::parseCMD(std::string input, Client& client)
 	try
 	{
 		parseStr(input);
+        if (getCommand() == "PING" || getCommand() == "WHOIS")
+            return ;
+		if (getCommand() == "MODE")
+		{
+            if (_channelName[0] != '#')
+                return ;
+			if (_arguments[0][0] == '+')
+				addPrivileges(client);
+			else if (_arguments[0][0] == '-')
+				removePrivileges(client); 
+		}
         if (_channelName[0] != '#')
             throw (std::runtime_error("Channelname has to start with #"));
 		if (getCommand() == "NICK")
@@ -152,13 +163,6 @@ void    Command::parseCMD(std::string input, Client& client)
 			executeKick(client, _arguments[0]);
 		else if (getCommand() == "INVITE")
 			executeInvite(client, _arguments[0]);
-		else if (getCommand() == "MODE")
-		{
-			if (_arguments[0][0] == '+')
-				addPrivileges(client);
-			else if (_arguments[0][0] == '-')
-				removePrivileges(client); 
-		}
 		else if (getCommand() == "PRIVMSG")
 		{
 			std::string message;
@@ -380,7 +384,7 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
         else
         {
             existingChannel->addUser(client);
-            std::string joinMessage = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " JOIN :" + existingChannel->getTopic(); //??
+            std::string joinMessage = ":" + client.getNickName() + " has joined the channel.";
             existingChannel->broadcastMessage(joinMessage, client); //??
             std::cout << "Succesfully added user -" << existingChannel->getUsers().back()->getNickName() << "- to -" << existingChannel->getTopic() << std::endl << std::endl;
         }

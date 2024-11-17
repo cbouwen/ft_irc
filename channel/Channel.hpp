@@ -39,6 +39,7 @@ class Channel
         const std::string   getPassword() const;
         const std::vector<Client*>   getUsers() const;
         void    setTopic(Client&, std::string);
+        void    removeUser(Client); //
 
         void    setUp(std::string channelName);
         void    addUser(Client& client);
