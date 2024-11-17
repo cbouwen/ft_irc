@@ -8,7 +8,7 @@
 #include <list>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include <csignal> //Do we want to add this?
+#include <csignal>
 #include <poll.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
@@ -64,6 +64,7 @@ class Server
 
         void    CloseFD();
         void    ClearClient(int fd);
+        void    removeFromChannels(Client);
         
         static void    SignalHandler(int signum);
 

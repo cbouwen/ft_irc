@@ -70,17 +70,25 @@ void Server::SignalHandler(int signum)
     Server::_signal = true;
 }
 
-void    Server::CloseFD() //Does fd get deleted from pollfd?
+void    Server::CloseFD()
 {
     for (std::list<Client>::iterator it = _clients.begin(); it != _clients.end(); it++)
     {
         std::cout << "Client<" << it->getFD() << "> disconnected." << std::endl;
-        close(it->getFD());//check comment below in ClearClient
+        close(it->getFD());
     }
     if (_serverSocketFD != -1)
     {
-        std::cout << "Server <" << _serverSocketFD << "> disconnected" << std::endl; //Is this cause of double disconnect issues?
+        std::cout << "Server <" << _serverSocketFD << "> disconnected" << std::endl;
         close(_serverSocketFD);
+    }
+}
+
+void Server::removeFromChannels(Client client)
+{
+    for (std::vector<Channel>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+    {
+        it->removeUser(client);
     }
 }
 
@@ -90,8 +98,9 @@ void    Server::ClearClient(int fd)
     {
         if (it->getFD() == fd)
         {
+            removeFromChannels(*it);
             close(it->getFD());
-            it = _clients.erase(it);//Client disconnects correctly but on server shutdown, clients disconnects again? Look into it
+            it = _clients.erase(it);
             break;
         } 
     }

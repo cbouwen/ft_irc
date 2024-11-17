@@ -69,6 +69,19 @@ void    Channel::setUp(std::string channelName)
     _channelPassword = false;
 }
 
+void Channel::removeUser(Client client)
+{
+    for (size_t i = 0; i < _users.size(); ++i)
+    {
+        if (_users[i]->getNickName() == client.getNickName())
+        {
+            _users.erase(_users.begin() + i);
+            std::cout << "Removed client " << client.getNickName() << " from channel " << this->getTopic() << std::endl;
+            return;
+        }
+    }
+}
+
 void    Channel::setTopic(Client& client, std::string topicName)
 {
     std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + this->_topic + " ";
@@ -297,13 +310,7 @@ void    Channel::kickClient(Client& client, Client* targetClient)
         {
             std::string kickMessage = ":" + client.getNickName() + " KICK " + _topic + " " + targetClient->getNickName() + " : I don't like you";
             broadcastMessageToAll(kickMessage);
-
-//            targetClient->sendMessageToClient(kickMessage);
             _users.erase(_users.begin() + i);
-    //        message += "Client " + targetClient->getNickName() + " has been kicked from the channel.";
-      //      client.sendMessageToClient(message);
-        //    message = "Client " + targetClient->getNickName() + " has been kicked from the channel.";
-          //  broadcastMessage(message, client);
             return ;
         }
     }
