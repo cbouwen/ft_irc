@@ -2,7 +2,7 @@
 
 Channel::Channel()
 {
-
+    _userLimit = INT_MAX;
 }
 
 Channel::~Channel()
@@ -33,6 +33,11 @@ bool   Channel::getTopicPrivileges() const
 const std::string   Channel::getPassword() const
 {
     return _password;
+}
+
+const int   Channel::getUserLimit() const
+{
+    return _userLimit;
 }
 
 const std::string   Channel::getTopicName() const
@@ -239,6 +244,39 @@ void    Channel::setChannelPassword(int a, Client& client, std::string* password
             _channelPassword = true;
             _password = *password;
             message += this->getTopic() + " is now restricted by a password";
+            client.sendMessageToClient(message);
+        }
+    }
+}
+
+void    Channel::setUserLimit(int a, Client& client, int limit)
+{
+    std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + this->_topic + " ";
+    if (!checkOperatorStatus(client))
+    {
+        message += "You don't have operator privileges";
+        client.sendMessageToClient(message);
+    }
+    else
+    {
+        if (a == 0)
+        {
+          _userLimit = INT_MAX;
+          message += this->getTopic() + " no longer has a user limit";
+          client.sendMessageToClient(message);
+        }
+        else if (a == 1)
+        {
+            if (_users.size() > limit)
+            {
+                message += this->getTopic() + " the current amount of users exceeds the limit you set. Lower the limit.";
+                client.sendMessageToClient(message);
+                return ; 
+            }
+            std::ostringstream oss;
+            oss << limit;
+            _userLimit = limit;
+            message += this->getTopic() + " now has a user limit of " + oss.str();
             client.sendMessageToClient(message);
         }
     }
