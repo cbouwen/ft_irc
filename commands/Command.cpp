@@ -215,6 +215,36 @@ void    Command::executeInvite(Client& client, std::string targetClientName)
     targetChannel->inviteClient(client, targetClient);    
 }
 
+
+bool Command::isValidInteger(const std::string& str)
+{
+    if (str.empty()) // Check for empty string
+        return false;
+
+    size_t i = 0;
+
+    if (str[0] == '-') //no negative numbers
+        return false;
+
+    // Check for optional plus
+    if (str[i] == '+') 
+    {
+        if (str.length() == 1) // A lone '+' or '-' is invalid
+            return false;
+        ++i;
+    }
+
+    // Check the remaining characters to ensure they're all digits
+    for (; i < str.length(); ++i)
+    {
+        if (!std::isdigit(str[i]))
+            return false;
+    }
+
+    return true;
+}
+
+
 void    Command::addPrivileges(Client& client)
 {
     Channel* targetChannel = _server.findChannel(getChannelName());
@@ -239,6 +269,17 @@ void    Command::addPrivileges(Client& client)
         else
             targetChannel->setChannelPassword(1, client, &_arguments[1]);
     }
+    else if (_arguments[0] == "+l")
+    {
+        if (_arguments.size() <= 1) //no userlimit given
+            targetChannel->setUserLimit(0, client, INT_MAX);
+        else
+        {
+            if (!isValidInteger(_arguments[1]))
+                throw std::runtime_error("Not a valid number");
+            targetChannel->setUserLimit(1, client, atoi(_arguments[1].c_str()));
+        } 
+    }
 }
 
 void    Command::removePrivileges(Client& client)
@@ -260,6 +301,9 @@ void    Command::removePrivileges(Client& client)
         targetChannel->setTopicPrivileges(0, client);
     else if (_arguments[0] == "-k")
         targetChannel->setChannelPassword(0, client, NULL);
+    else if (_arguments[0] == "-l")
+        targetChannel->setUserLimit(0, client, INT_MAX);
+ 
 }
 
 bool    Command::targetIsUser()
@@ -294,6 +338,9 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
        
         existingChannel = &_server.getChannels().back();
     }
+
+    if (existingChannel->getUserLimit() <= existingChannel->getUsers().size())
+        throw std::runtime_error("Channel has reached the user limit");
 
     //step 2
     if (existingChannel->checkIsInvited(client)) //CLient is on invited list == auto accept
@@ -333,6 +380,8 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
         else
         {
             existingChannel->addUser(client);
+            std::string joinMessage = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " JOIN :" + existingChannel->getTopic(); //??
+            existingChannel->broadcastMessage(joinMessage, client); //??
             std::cout << "Succesfully added user -" << existingChannel->getUsers().back()->getNickName() << "- to -" << existingChannel->getTopic() << std::endl << std::endl;
         }
     }
@@ -345,8 +394,8 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
 
 std::ostream& operator<<(std::ostream &os, const Command& command)
 {
-    os << "Channel name: " << command.getChannelName() << std::endl;
     os << "Command: " << command.getCommand() << std::endl;
+    os << "Channel name: " << command.getChannelName() << std::endl;
     os << "Arguments: ";
     for (size_t i = 0; i < command.getArguments().size(); ++i)
     {

@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <string>
+#include <climits>
 
 #include "../client/Client.hpp"
 
@@ -20,6 +21,7 @@ class Channel
         std::vector<Client*>      _operators;
         std::vector<Client*>      _invitees;
 
+        int                     _userLimit;
         bool                    _inviteOnly;
         bool                    _changeTopic;
         bool                    _channelPassword;
@@ -30,6 +32,7 @@ class Channel
 
         const std::string   getTopic() const;
         const std::string   getTopicName() const;
+        const int           getUserLimit() const;
         bool   getInviteOnly() const;
         bool   getChannelPassword() const;
         bool   getTopicPrivileges() const;
@@ -49,6 +52,7 @@ class Channel
         void    setInviteOnly(int a, Client& client);
         void    setTopicPrivileges(int a, Client& client);
         void    setChannelPassword(int a, Client& client, std::string*);
+        void    setUserLimit(int a, Client& client, int limit);
         void    kickClient(Client& client, Client* targetClient);
         void    inviteClient(Client& client, Client* targetClient);
 

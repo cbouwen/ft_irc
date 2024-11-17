@@ -40,6 +40,7 @@ class Command
         void     executeKick(Client& client, std::string targetClientName);
         void     executeInvite(Client& client, std::string targetClientName);
 
+        bool    isValidInteger(const std::string&);
         bool    targetIsUser();
         void    joinChannel(Client& client);
 
