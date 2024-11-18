@@ -99,7 +99,7 @@ void    Command::parseStr(std::string str) //need to add in a throw here that wi
         this->_channelName = words.front();
         words.erase(words.begin());
         this->_arguments.insert(_arguments.end(), words.begin(), words.end());
-        if ((getCommand() != "PASS" && getCommand() != "NICK" && getCommand() != "JOIN" && getCommand() == "TOPIC") && _arguments.empty())
+        if ((getCommand() != "PASS" && getCommand() != "NICK" && getCommand() != "JOIN" && getCommand() == "TOPIC" && getCommand() == "QUIT") && _arguments.empty())
             throw std::runtime_error("Add one or more arguments to your command");
     }
 
@@ -307,7 +307,6 @@ void    Command::removePrivileges(Client& client)
         targetChannel->setChannelPassword(0, client, NULL);
     else if (_arguments[0] == "-l")
         targetChannel->setUserLimit(0, client, INT_MAX);
- 
 }
 
 bool    Command::targetIsUser()
@@ -364,8 +363,7 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
             {
                 if (_arguments[0] != existingChannel->getPassword()) //if Password does not match
                 {
-                    std::string message = ":" + client.getNickName() + " Incorrect password";
-                    //std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + existingChannel->getTopic() + "Incorrect password";
+                    std::string message = "475 " + client.getNickName() + " " + existingChannel->getTopic() + " :Cannot join channel (+k)";
                     client.sendMessageToClient(message);
                 }
                 else
@@ -379,7 +377,7 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
             }
             else
             {
-                std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + existingChannel->getTopic() + "You have to enter a password";
+                std::string message = "475 " + client.getNickName() + " " + existingChannel->getTopic() + " :Cannot join channel (+k)";
                 client.sendMessageToClient(message);
             }
         }
@@ -393,7 +391,7 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
     }
     else
     {
-        std::string message = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + existingChannel->getTopic() + " Channel is for invite only";
+        std::string message = "473 " + client.getNickName() + " " + existingChannel->getTopic() + " :Cannot join channel (+i)";
         client.sendMessageToClient(message);
     }
 }

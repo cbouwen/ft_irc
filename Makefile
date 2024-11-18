@@ -1,5 +1,5 @@
 NAME = ircserv
-FLAGS = -Wall -Werror -Wextra -std=c++98 -g
+FLAGS = -g -Wall -Werror -Wextra -std=c++98 -g
 CC = c++
 RM = rm -rf
 

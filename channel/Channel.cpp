@@ -71,6 +71,15 @@ void    Channel::setUp(std::string channelName)
 
 void Channel::removeUser(Client client)
 {
+    for (size_t i = 0; i < _operators.size(); ++i)
+    {
+        if (_operators[i]->getNickName() == client.getNickName())
+        {
+            _operators.erase(_operators.begin() + i);
+            std::cout << "Removed client as operator " << client.getNickName() << " from channel " << this->getTopic() << std::endl;
+            return;
+        }
+    }
     for (size_t i = 0; i < _users.size(); ++i)
     {
         if (_users[i]->getNickName() == client.getNickName())
