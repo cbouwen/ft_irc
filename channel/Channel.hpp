@@ -32,7 +32,7 @@ class Channel
 
         const std::string   getTopic() const;
         const std::string   getTopicName() const;
-        const int           getUserLimit() const;
+        int           getUserLimit() const;
         bool   getInviteOnly() const;
         bool   getChannelPassword() const;
         bool   getTopicPrivileges() const;

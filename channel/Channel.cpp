@@ -35,7 +35,7 @@ const std::string   Channel::getPassword() const
     return _password;
 }
 
-const int   Channel::getUserLimit() const
+int   Channel::getUserLimit() const
 {
     return _userLimit;
 }
@@ -77,7 +77,7 @@ void Channel::removeUser(Client client)
         {
             _operators.erase(_operators.begin() + i);
             std::cout << "Removed client as operator " << client.getNickName() << " from channel " << this->getTopic() << std::endl;
-            return;
+            break;
         }
     }
     for (size_t i = 0; i < _users.size(); ++i)
@@ -289,7 +289,7 @@ void    Channel::setUserLimit(int a, Client& client, int limit)
         }
         else if (a == 1)
         {
-            if (_users.size() > limit)
+            if ((int)_users.size() > limit)
             {
                 message += this->getTopic() + " the current amount of users exceeds the limit you set. Lower the limit.";
                 client.sendMessageToClient(message);
@@ -335,9 +335,11 @@ void    Channel::inviteClient(Client& client, Client* targetClient)
         message += "You don't have operator privileges";
         client.sendMessageToClient(message);
     }
-    addUser(*targetClient);
-    std::cout << "Succesfully added user -" << getUsers().back()->getNickName() << "- to -" << getTopic() << std::endl << std::endl;
+    _invitees.push_back(targetClient);
+//    addUser(*targetClient);
+    std::cout << "User -" << getUsers().back()->getNickName() << "- is added to the invite list of -" << getTopic() << std::endl << std::endl;
 }
+
 
 void    Channel::addUser(Client& client)
 {
@@ -348,6 +350,7 @@ void    Channel::addUser(Client& client)
         std::cout << "Client " << (*_operators.begin())->getNickName() << " is now operator of channel: " << getTopic() <<  std::endl;
     }
 }
+
 
 void    Channel::broadcastMessageToAll(const std::string& message)
 {

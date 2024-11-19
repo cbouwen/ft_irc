@@ -342,7 +342,7 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
         existingChannel = &_server.getChannels().back();
     }
 
-    if (existingChannel->getUserLimit() <= existingChannel->getUsers().size())
+    if (existingChannel->getUserLimit() <= (int)existingChannel->getUsers().size())
         throw std::runtime_error("Channel has reached the user limit");
 
     //step 2
