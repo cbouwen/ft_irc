@@ -336,7 +336,6 @@ void    Channel::inviteClient(Client& client, Client* targetClient)
         client.sendMessageToClient(message);
     }
     _invitees.push_back(targetClient);
-//    addUser(*targetClient);
     std::cout << "User -" << getUsers().back()->getNickName() << "- is added to the invite list of -" << getTopic() << std::endl << std::endl;
 }
 
