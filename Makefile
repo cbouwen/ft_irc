@@ -10,7 +10,7 @@ SRC_COMMANDS = $(addprefix ./commands/, Command.cpp Authorisation.cpp)
 SRC_SERVER = $(addprefix ./server/, Server.cpp)
 
 #Add header files here so they also re-compile
-INC = Channel.hpp Client.hpp Command.hpp Server.hpp
+INC = ./channel/Channel.hpp ./client/Client.hpp ./commands/Command.hpp ./server/Server.hpp
 
 SRC = $(SRC_MAIN) $(SRC_SERVER) $(SRC_CHANNEL) $(SRC_CLIENT) $(SRC_COMMANDS)
 OBJ = $(SRC:.cpp=.o)
