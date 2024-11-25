@@ -151,6 +151,20 @@ void    Command::parseCMD(std::string input, Client& client)
 			else if (_arguments[0][0] == '-')
 				removePrivileges(client); 
 		}
+        if (getCommand() == "PRIVMSG" && _channelName[0] != '#')
+        {
+			std::string message;
+			for (size_t i = 0; i < getArguments().size(); ++i)
+			{
+				message += getArguments()[i];
+				if (i < getArguments().size() - 1)  // Add a space between words
+					message += " ";
+			}
+			Client* recipient = _server.getClientByName(getChannelName());
+			std::string privMsg = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + recipient->getNickName() + " " + message;
+			recipient->sendMessageToClient(privMsg);        
+            return;
+        }
         if (_channelName[0] != '#')
             throw (std::runtime_error("Channelname has to start with #"));
 		if (getCommand() == "NICK")
@@ -172,23 +186,16 @@ void    Command::parseCMD(std::string input, Client& client)
 				if (i < getArguments().size() - 1)  // Add a space between words
 					message += " ";
 			}
-			if (!targetIsUser())
-			{
-				Client* recipient = _server.getClientByName(getChannelName());
-				std::string privMsg = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + recipient->getNickName() + " " + message;
-				recipient->sendMessageToClient(privMsg);        
-			}
+            if (!_server.findChannel(getChannelName()))
+                throw std::runtime_error("Channel not found");
+			Channel* targetChannel = _server.findChannel(getChannelName());
+			if (targetChannel->findUser(client))
+				targetChannel->broadcastMessage(message, client);
 			else
-			{
-                if (!_server.findChannel(getChannelName()))
-                    throw std::runtime_error("Channel not found");
-				Channel* targetChannel = _server.findChannel(getChannelName());
-				if (targetChannel->findUser(client))
-					targetChannel->broadcastMessage(message, client);
-				else
-					client.sendMessageToClient("You are not part of this channel");
-			}
+				client.sendMessageToClient("You are not part of this channel");
 		}
+        else
+            throw (std::runtime_error("Command not found"));
 	}
 	catch (const std::exception& e) // Catch error
     {
@@ -343,7 +350,11 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
     }
 
     if (existingChannel->getUserLimit() <= (int)existingChannel->getUsers().size())
+    {
+        std::string message = "471 " + client.getNickName() + " " + existingChannel->getTopic() + " :Cannot join channel (+l)";
+        client.sendMessageToClient(message);
         throw std::runtime_error("Channel has reached the user limit");
+    }
 
     //step 2
     if (existingChannel->checkIsInvited(client)) //CLient is on invited list == auto accept

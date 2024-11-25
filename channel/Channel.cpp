@@ -89,6 +89,14 @@ void Channel::removeUser(Client client)
             break;
         }
     }
+    for (size_t i = 0; i < _invitees.size(); ++i)
+    {
+        if (_invitees[i]->getNickName() == client.getNickName())
+        {
+            _invitees.erase(_invitees.begin() + i);
+            break;
+        }
+    }
     if (_operators.size() == 0 && _users.size() != 0)
     {
         _operators.push_back(*_users.begin());
