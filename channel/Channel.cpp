@@ -86,8 +86,13 @@ void Channel::removeUser(Client client)
         {
             _users.erase(_users.begin() + i);
             std::cout << "Removed client " << client.getNickName() << " from channel " << this->getTopic() << std::endl;
-            return;
+            break;
         }
+    }
+    if (_operators.size() == 0 && _users.size() != 0)
+    {
+        _operators.push_back(*_users.begin());
+        std::cout << "Client " << _operators.back()->getNickName() << " is now operator of channel: " << getTopic() <<  std::endl;
     }
 }
 
