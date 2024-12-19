@@ -58,7 +58,7 @@ Channel*    Server::findChannel(std::string channelName)
         if (it->getTopic() == channelName)
             return &(*it);
     }
-    throw (std::runtime_error("Null return at channel"));
+    throw (std::runtime_error("Could not find Channel"));
 }
 
 //Static function so we can call on this from everywhere
@@ -156,10 +156,15 @@ void    Server::ServerInit()
         {
             if (_fds.at(i).revents & POLLIN)
             {
-                if (_fds.at(i).fd == _serverSocketFD)
+                if (_fds.at(i).fd == _serverSocketFD) {
                     AcceptNewClient();
-                else
-                    ReceiveNewData(_fds.at(i).fd);
+                } else {
+                    try {
+                        ReceiveNewData(_fds.at(i).fd);
+                    } catch (std::exception &e) {
+                        std::cerr << e.what();
+                    }
+                }
             }
         }
     }
@@ -294,8 +299,7 @@ Client* Server::getClientByFD(int fd)
         if (it->getFD() == fd)
             return &(*it);
     }
-    std::cout << "Null return at getClientbyFD" << std::endl;
-    return NULL;
+    throw (std::runtime_error("Could not find client by FD"));
 }
 
 
@@ -333,6 +337,5 @@ Client*    Server::getClientByName(const std::string targetClient)
         if (it->getNickName() == targetClient)
             return &(*it);
     }
-    std::cout << "Null return at getClientbyName" << std::endl;
-    return NULL;
+    throw (std::runtime_error("Could not find client by name"));
 }
