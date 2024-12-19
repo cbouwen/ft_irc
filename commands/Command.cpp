@@ -65,7 +65,7 @@ void    Command::getAuthenticated(std::string input, Client& client)
 
 bool	findAlpha(std::string str)
 {
-	if (isalpha(str[0]))
+	if (isalpha(str.at(0)))
 		return true;
 	return false;
 }
@@ -128,7 +128,7 @@ void    Command::handleTopic(Client& client)
     }
     else //extra argument to set the topic. Might have to add extra step to check if they added more than 1 argument
     {
-        targetChannel->setTopic(client, _arguments[0]);
+        targetChannel->setTopic(client, _arguments.at(0));
         std::string clientMessage = ":server 332 " + client.getNickName() + " " + targetChannel->getTopic() + " :" + targetChannel->getTopicName();
         std::cout << clientMessage << std::endl;
         client.sendMessageToClient(clientMessage);
@@ -144,19 +144,19 @@ void    Command::parseCMD(std::string input, Client& client)
             return ;
 		if (getCommand() == "MODE")
 		{
-            if (_channelName[0] != '#')
+            if (_channelName.at(0) != '#')
                 return ;
-			if (_arguments[0][0] == '+')
+			if (_arguments.at(0).at(0) == '+')
 				addPrivileges(client);
-			else if (_arguments[0][0] == '-')
+			else if (_arguments.at(0).at(0) == '-')
 				removePrivileges(client); 
 		}
-        if (getCommand() == "PRIVMSG" && _channelName[0] != '#')
+        if (getCommand() == "PRIVMSG" && _channelName.at(0) != '#')
         {
 			std::string message;
 			for (size_t i = 0; i < getArguments().size(); ++i)
 			{
-				message += getArguments()[i];
+				message += getArguments().at(i);
 				if (i < getArguments().size() - 1)  // Add a space between words
 					message += " ";
 			}
@@ -165,7 +165,7 @@ void    Command::parseCMD(std::string input, Client& client)
 			recipient->sendMessageToClient(privMsg);        
             return;
         }
-        if (_channelName[0] != '#')
+        if (_channelName.at(0) != '#')
             throw (std::runtime_error("Channelname has to start with #"));
 		if (getCommand() == "NICK")
 			client.setNickname(_channelName, _server);
@@ -174,15 +174,15 @@ void    Command::parseCMD(std::string input, Client& client)
 		else if (getCommand() == "TOPIC")
 			handleTopic(client);
 		else if (getCommand() == "KICK")
-			executeKick(client, _arguments[0]);
+			executeKick(client, _arguments.at(0));
 		else if (getCommand() == "INVITE")
-			executeInvite(client, _arguments[0]);
+			executeInvite(client, _arguments.at(0));
 		else if (getCommand() == "PRIVMSG")
 		{
 			std::string message;
 			for (size_t i = 0; i < getArguments().size(); ++i)
 			{
-				message += getArguments()[i];
+				message += getArguments().at(i);
 				if (i < getArguments().size() - 1)  // Add a space between words
 					message += " ";
 			}
@@ -234,11 +234,11 @@ bool Command::isValidInteger(const std::string& str)
 
     size_t i = 0;
 
-    if (str[0] == '-') //no negative numbers
+    if (str.at(0) == '-') //no negative numbers
         return false;
 
     // Check for optional plus
-    if (str[i] == '+') 
+    if (str.at(i) == '+') 
     {
         if (str.length() == 1) // A lone '+' or '-' is invalid
             return false;
@@ -248,7 +248,7 @@ bool Command::isValidInteger(const std::string& str)
     // Check the remaining characters to ensure they're all digits
     for (; i < str.length(); ++i)
     {
-        if (!std::isdigit(str[i]))
+        if (!std::isdigit(str.at(i)))
             return false;
     }
 
@@ -261,34 +261,34 @@ void    Command::addPrivileges(Client& client)
     Channel* targetChannel = _server.findChannel(getChannelName());
     if (targetChannel == NULL)
         return;
-    if (_arguments[0] == "+o")
+    if (_arguments.at(0) == "+o")
     {
-        if (_arguments.size() > 1 && !_arguments[1].empty())
+        if (_arguments.size() > 1 && !_arguments.at(1).empty())
         {
-            Client* targetClient = _server.getClientByName(_arguments[1]);
+            Client* targetClient = _server.getClientByName(_arguments.at(1));
             targetChannel->giveOperatorStatus(client, targetClient);
         }
     }
-    else if (_arguments[0] == "+i")
+    else if (_arguments.at(0) == "+i")
         targetChannel->setInviteOnly(1, client);
-    else if (_arguments[0] == "+t")
+    else if (_arguments.at(0) == "+t")
         targetChannel->setTopicPrivileges(1, client);
-    else if (_arguments[0] == "+k")
+    else if (_arguments.at(0) == "+k")
     {
         if (_arguments.size() <= 1) //no password passed
             targetChannel->setChannelPassword(1, client, NULL);
         else
-            targetChannel->setChannelPassword(1, client, &_arguments[1]);
+            targetChannel->setChannelPassword(1, client, &_arguments.at(1));
     }
-    else if (_arguments[0] == "+l")
+    else if (_arguments.at(0) == "+l")
     {
         if (_arguments.size() <= 1) //no userlimit given
             targetChannel->setUserLimit(0, client, INT_MAX);
         else
         {
-            if (!isValidInteger(_arguments[1]))
+            if (!isValidInteger(_arguments.at(1)))
                 throw std::runtime_error("Not a valid number");
-            targetChannel->setUserLimit(1, client, atoi(_arguments[1].c_str()));
+            targetChannel->setUserLimit(1, client, atoi(_arguments.at(1).c_str()));
         } 
     }
 }
@@ -298,27 +298,27 @@ void    Command::removePrivileges(Client& client)
     Channel* targetChannel = _server.findChannel(getChannelName());
     if (targetChannel == NULL)
         return;
-    if (_arguments[0] == "-o")
+    if (_arguments.at(0) == "-o")
     {
-        if (_arguments.size() > 1 && !_arguments[1].empty())
+        if (_arguments.size() > 1 && !_arguments.at(1).empty())
         {
-            Client* targetClient = _server.getClientByName(_arguments[1]);//could maybe do error check here. Instead of looking for client in server, we look for client in channel
+            Client* targetClient = _server.getClientByName(_arguments.at(1));//could maybe do error check here. Instead of looking for client in server, we look for client in channel
             targetChannel->removeOperatorStatus(client, targetClient);
         }
     }
-    else if (_arguments[0] == "-i")
+    else if (_arguments.at(0) == "-i")
         targetChannel->setInviteOnly(0, client);
-    else if (_arguments[0] == "-t")
+    else if (_arguments.at(0) == "-t")
         targetChannel->setTopicPrivileges(0, client);
-    else if (_arguments[0] == "-k")
+    else if (_arguments.at(0) == "-k")
         targetChannel->setChannelPassword(0, client, NULL);
-    else if (_arguments[0] == "-l")
+    else if (_arguments.at(0) == "-l")
         targetChannel->setUserLimit(0, client, INT_MAX);
 }
 
 bool    Command::targetIsUser()
 {
-    if (_channelName[0] == '#')
+    if (_channelName.at(0) == '#')
     {
         return true;
     }
@@ -372,7 +372,7 @@ void    Command::joinChannel(Client& client) //2 steps: 1 = creating the channel
         {
             if (_arguments.size() > 0) //IF password isn't missing
             {
-                if (_arguments[0] != existingChannel->getPassword()) //if Password does not match
+                if (_arguments.at(0) != existingChannel->getPassword()) //if Password does not match
                 {
                     std::string message = "475 " + client.getNickName() + " " + existingChannel->getTopic() + " :Cannot join channel (+k)";
                     client.sendMessageToClient(message);
@@ -414,7 +414,7 @@ std::ostream& operator<<(std::ostream &os, const Command& command)
     os << "Arguments: ";
     for (size_t i = 0; i < command.getArguments().size(); ++i)
     {
-        os << command.getArguments()[i];
+        os << command.getArguments().at(i);
         if (i != command.getArguments().size() - 1)
             os << " ";  // Add a space between arguments, but not after the last one
     }
