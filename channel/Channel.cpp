@@ -54,7 +54,7 @@ bool    Channel::findUser(Client &targetClient)
 {
     for (size_t i = 0; i < _users.size(); ++i)
     {
-        if (_users[i]->getNickName() == targetClient.getNickName())
+        if (_users.at(i)->getNickName() == targetClient.getNickName())
             return true;
     }
     return false;
@@ -73,7 +73,7 @@ void Channel::removeUser(Client client)
 {
     for (size_t i = 0; i < _operators.size(); ++i)
     {
-        if (_operators[i]->getNickName() == client.getNickName())
+        if (_operators.at(i)->getNickName() == client.getNickName())
         {
             _operators.erase(_operators.begin() + i);
             std::cout << "Removed client as operator " << client.getNickName() << " from channel " << this->getTopic() << std::endl;
@@ -82,7 +82,7 @@ void Channel::removeUser(Client client)
     }
     for (size_t i = 0; i < _users.size(); ++i)
     {
-        if (_users[i]->getNickName() == client.getNickName())
+        if (_users.at(i)->getNickName() == client.getNickName())
         {
             _users.erase(_users.begin() + i);
             std::cout << "Removed client " << client.getNickName() << " from channel " << this->getTopic() << std::endl;
@@ -91,7 +91,7 @@ void Channel::removeUser(Client client)
     }
     for (size_t i = 0; i < _invitees.size(); ++i)
     {
-        if (_invitees[i]->getNickName() == client.getNickName())
+        if (_invitees.at(i)->getNickName() == client.getNickName())
         {
             _invitees.erase(_invitees.begin() + i);
             break;
@@ -129,7 +129,7 @@ bool    Channel::checkIsInvited(Client& client) const
 {
     for (size_t i = 0; i < _invitees.size(); i++)
     {
-        if (_invitees[i]->getFD() == client.getFD())
+        if (_invitees.at(i)->getFD() == client.getFD())
             return true;
     }
     return false;
@@ -140,7 +140,7 @@ bool    Channel::checkOperatorStatus(Client& client) const
 {
     for (size_t i = 0; i < _operators.size(); i++)
     {
-        if (_operators[i]->getFD() == client.getFD())
+        if (_operators.at(i)->getFD() == client.getFD())
             return true;
     }
     return false;
@@ -328,7 +328,7 @@ void    Channel::kickClient(Client& client, Client* targetClient)
     }
     for (size_t i = 0; i < _users.size(); ++i)
     {
-        if (_users[i]->getNickName() == targetClient->getNickName())
+        if (_users.at(i)->getNickName() == targetClient->getNickName())
         {
             std::string kickMessage = ":" + client.getNickName() + " KICK " + _topic + " " + targetClient->getNickName() + " : I don't like you";
             broadcastMessageToAll(kickMessage);
@@ -369,7 +369,7 @@ void    Channel::broadcastMessageToAll(const std::string& message)
     for (unsigned int i = 0; i < _users.size(); ++i)
     {
         std::cout << "Sending " << message << " to client in channel:" << _topic << std::endl;
-        _users[i]->sendMessageToClient(message);
+        _users.at(i)->sendMessageToClient(message);
     }
 }
 void    Channel::broadcastMessage(const std::string& message, const Client& sender)
@@ -378,7 +378,7 @@ void    Channel::broadcastMessage(const std::string& message, const Client& send
 
     for (unsigned int i = 0; i < _users.size(); ++i)
     {
-        if (_users[i]->getNickName() != sender.getNickName())
-            _users[i]->sendMessageToClient(channelMsg);
+        if (_users.at(i)->getNickName() != sender.getNickName())
+            _users.at(i)->sendMessageToClient(channelMsg);
     }
 }

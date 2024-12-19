@@ -58,8 +58,7 @@ Channel*    Server::findChannel(std::string channelName)
         if (it->getTopic() == channelName)
             return &(*it);
     }
-    std::cout << "Null return at channel" << std::endl;
-    return NULL;
+    throw (std::runtime_error("Could not find Channel"));
 }
 
 //Static function so we can call on this from everywhere
@@ -106,7 +105,7 @@ void    Server::ClearClient(int fd)
     }
     for (size_t i = 0; i < _fds.size(); i++)
     {
-        if (_fds[i].fd == fd)
+        if (_fds.at(i).fd == fd)
         {
             _fds.erase(_fds.begin() + i);  // Remove the pollfd struct using an iterator
             break;  // Exit loop once the fd is removed
@@ -150,17 +149,22 @@ void    Server::ServerInit()
 
     while (Server::_signal == false)
     {
-        if ((poll(&_fds[0], _fds.size(), -1) == -1) && Server::_signal == false)
+        if ((poll(&_fds.at(0), _fds.size(), -1) == -1) && Server::_signal == false)
             throw (std::runtime_error("poll() failed"));
         
         for (size_t i = 0; i < _fds.size(); i++)
         {
-            if (_fds[i].revents & POLLIN)
+            if (_fds.at(i).revents & POLLIN)
             {
-                if (_fds[i].fd == _serverSocketFD)
+                if (_fds.at(i).fd == _serverSocketFD) {
                     AcceptNewClient();
-                else
-                    ReceiveNewData(_fds[i].fd);
+                } else {
+                    try {
+                        ReceiveNewData(_fds.at(i).fd);
+                    } catch (std::exception &e) {
+                        std::cerr << e.what();
+                    }
+                }
             }
         }
     }
@@ -295,8 +299,7 @@ Client* Server::getClientByFD(int fd)
         if (it->getFD() == fd)
             return &(*it);
     }
-    std::cout << "Null return at getClientbyFD" << std::endl;
-    return NULL;
+    throw (std::runtime_error("Could not find client by FD"));
 }
 
 
@@ -334,6 +337,5 @@ Client*    Server::getClientByName(const std::string targetClient)
         if (it->getNickName() == targetClient)
             return &(*it);
     }
-    std::cout << "Null return at getClientbyName" << std::endl;
-    return NULL;
+    throw (std::runtime_error("Could not find client by name"));
 }

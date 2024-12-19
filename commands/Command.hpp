@@ -4,6 +4,7 @@
 # define COMMAND_HPP
 
 #include <string>
+#include <set>
 #include <sstream>
 
 #include "../server/Server.hpp"
@@ -30,23 +31,24 @@ class Command
         const std::string getCommand() const;
         const std::vector<std::string> getArguments() const;
 
-        void    parseStr(std::string str);
-        void    parseCMD(std::string input, Client& client);
-        void    getAuthenticated(std::string input, Client& client);
+        std::string&    checkCommand(std::string& command);
+        void            parseStr(std::string str);
+        void            parseCMD(std::string input, Client& client);
+        void            getAuthenticated(std::string input, Client& client);
 
-        void    addPrivileges(Client& client);
-        void    removePrivileges(Client& client);
+        void            addPrivileges(Client& client);
+        void            removePrivileges(Client& client);
 
-        void     executeKick(Client& client, std::string targetClientName);
-        void     executeInvite(Client& client, std::string targetClientName);
+        void            executeKick(Client& client, std::string targetClientName);
+        void            executeInvite(Client& client, std::string targetClientName);
 
-        bool    isValidInteger(const std::string&);
-        bool    targetIsUser();
-        void    joinChannel(Client& client);
+        bool            isValidInteger(const std::string&);
+        bool            targetIsUser();
+        void            joinChannel(Client& client);
 
-        void    handleTopic(Client&);
+        void            handleTopic(Client&);
 
-        void    checkPassword(Client&, std::string, std::string);
+        void            checkPassword(Client&, std::string, std::string);
 };
 
 std::ostream& operator <<(std::ostream& os, const Command& command);
