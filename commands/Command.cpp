@@ -70,6 +70,25 @@ bool	findAlpha(std::string str)
 	return false;
 }
 
+std::string& Command::checkCommand(std::string& command) {
+    std::set<std::string>    knownCommands;
+    knownCommands.insert("USER");
+    knownCommands.insert("NICK");
+    knownCommands.insert("PASS");
+    knownCommands.insert("JOIN");
+    knownCommands.insert("PRIVMSG");
+    knownCommands.insert("KICK");
+    knownCommands.insert("INVITE");
+    knownCommands.insert("TOPIC");
+    knownCommands.insert("MODE");
+
+    if (knownCommands.find(command) != knownCommands.end()) {
+        return (command);
+    } else {
+        throw (std::runtime_error("Command is not a known command."));
+    }
+};
+
 void    Command::parseStr(std::string str) //need to add in a throw here that will handle an empty input + empty arguments
 {
     std::vector<std::string>    words;
@@ -82,7 +101,7 @@ void    Command::parseStr(std::string str) //need to add in a throw here that wi
     while (stream >> word)
         words.push_back(word);
 
-    this->_command = words.front();
+    this->_command = checkCommand(words.front());
     words.erase(words.begin());
 
 	if (words.empty())
@@ -142,27 +161,27 @@ void    Command::parseCMD(std::string input, Client& client)
 		parseStr(input);
         if (getCommand() == "PING" || getCommand() == "WHOIS")
             return ;
-		if (getCommand() == "MODE")
-		{
+        if (getCommand() == "MODE")
+        {
             if (_channelName.at(0) != '#')
                 return ;
-			if (_arguments.at(0).at(0) == '+')
-				addPrivileges(client);
-			else if (_arguments.at(0).at(0) == '-')
-				removePrivileges(client); 
-		}
+            if (_arguments.at(0).at(0) == '+')
+                addPrivileges(client);
+            else if (_arguments.at(0).at(0) == '-')
+                removePrivileges(client); 
+        }
         if (getCommand() == "PRIVMSG" && _channelName.at(0) != '#')
         {
-			std::string message;
-			for (size_t i = 0; i < getArguments().size(); ++i)
-			{
-				message += getArguments().at(i);
-				if (i < getArguments().size() - 1)  // Add a space between words
-					message += " ";
-			}
-			Client* recipient = _server.getClientByName(getChannelName());
-			std::string privMsg = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + recipient->getNickName() + " " + message;
-			recipient->sendMessageToClient(privMsg);        
+            std::string message;
+            for (size_t i = 0; i < getArguments().size(); ++i)
+            {
+                    message += getArguments().at(i);
+                    if (i < getArguments().size() - 1)  // Add a space between words
+                            message += " ";
+            }
+            Client* recipient = _server.getClientByName(getChannelName());
+            std::string privMsg = ":" + client.getNickName() + "!" + client.getUserName() + "@" + client.getHostName() + " PRIVMSG " + recipient->getNickName() + " " + message;
+            recipient->sendMessageToClient(privMsg);        
             return;
         }
         if (_channelName.at(0) != '#')
