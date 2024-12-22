@@ -99,6 +99,8 @@ void Command::parseStr(std::string str) //need to add in a throw here that will 
     this -> _arguments.push_back(words.front());
     words.erase(words.begin());
     this -> _channelName = words.front();
+    if (this -> _channelName.at(0) != '#')
+      throw (std::runtime_error("Channelname has to start with #"));
   } else {
     this -> _channelName = words.front();
     words.erase(words.begin());
@@ -141,7 +143,7 @@ void Command::parseCMD(std::string input, Client & client) {
     parseStr(input);
     if (getCommand() == "PING" || getCommand() == "WHOIS")
       return;
-    if (getCommand() == "MODE") {
+    else if (getCommand() == "MODE") {
       if (_channelName.at(0) != '#')
         return;
       if (_arguments.at(0).at(0) == '+')
@@ -149,7 +151,7 @@ void Command::parseCMD(std::string input, Client & client) {
       else if (_arguments.at(0).at(0) == '-')
         removePrivileges(client);
     }
-    if (getCommand() == "PRIVMSG" && _channelName.at(0) != '#') {
+    else if (getCommand() == "PRIVMSG" && _channelName.at(0) != '#') {
       std::string message;
       for (size_t i = 0; i < getArguments().size(); ++i) {
         message += getArguments().at(i);
@@ -161,9 +163,7 @@ void Command::parseCMD(std::string input, Client & client) {
       recipient -> sendMessageToClient(privMsg);
       return;
     }
-    if (_channelName.at(0) != '#')
-      throw (std::runtime_error("Channelname has to start with #"));
-    if (getCommand() == "NICK")
+    else if (getCommand() == "NICK")
       client.setNickname(_channelName, _server);
     else if (getCommand() == "JOIN")
       joinChannel(client);
