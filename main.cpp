@@ -4,7 +4,7 @@ int	main(int argc, char** argv)
 {
 	if (argc != 3)
 	{
-		std::cout << "Incorrect amount of arguments" << std::endl;
+		std::cout << "Usage: ./ircserv <port> <password>" << std::endl;
 		return 1;
 	}
 	
