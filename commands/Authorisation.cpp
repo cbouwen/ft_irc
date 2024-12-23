@@ -34,6 +34,7 @@ void    Client::setNickname(std::string newNickname, Server _server)
         if (i == 6)
             throw std::runtime_error("Already 5 variants of this nickname exist. Please choose another");
     }
+    sendMessageToClient(":" + _nickName + " NICK " + tempNickname);
     _nickName = tempNickname;
     sendMessageToClient("Nickname is set!");
     setNicknameSet();
