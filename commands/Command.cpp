@@ -216,8 +216,6 @@ void    Command::parseCMD(std::string input, Client& client)
 			else
 				client.sendMessageToClient("You are not part of this channel");
 		}
-        else
-            throw (std::runtime_error("Command not found"));
 	}
 	catch (const std::exception& e) // Catch error
     {
