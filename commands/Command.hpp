@@ -32,6 +32,7 @@ class Command
         const std::vector<std::string> getArguments() const;
 
         std::string&    checkCommand(std::string& command);
+        std::string&    checkChannel(std::string& input);
         void            parseStr(std::string str);
         void            parseCMD(std::string input, Client& client);
         void            getAuthenticated(std::string input, Client& client);

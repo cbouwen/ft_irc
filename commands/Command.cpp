@@ -76,6 +76,43 @@ std::string & Command::checkCommand(std::string & command) {
   }
 };
 
+std::string& Command::checkChannel(std::string& input)
+{
+  bool  hasHashtag = (this -> _channelName.at(0) == '#');
+  if (input == "USER") {
+    return (input);
+  } else if (input == "NICK") {
+    return (input);
+  } else if (input == "PASS") {
+    return (input);
+  } else if (input == "JOIN") {
+      if (hasHashtag == false) {
+        throw (std::runtime_error("Channelname has to start with #"));
+      }
+  } else if (input == "PRIVMSG") {
+      if (hasHashtag == false) {
+        throw (std::runtime_error("Channelname has to start with #"));
+      }
+  } else if (input == "KICK") {
+      if (hasHashtag == false) {
+        throw (std::runtime_error("Channelname has to start with #"));
+      }
+  } else if (input == "INVITE") {
+      if (hasHashtag == false) {
+        throw (std::runtime_error("Channelname has to start with #"));
+      }
+  } else if (input == "TOPIC") {
+      if (hasHashtag == false) {
+        throw (std::runtime_error("Channelname has to start with #"));
+      }
+  } else if (input == "MODE") {
+      if (hasHashtag == false) {
+        throw (std::runtime_error("Channelname has to start with #"));
+      }
+  }
+  return (input);
+};
+
 void Command::parseStr(std::string str) //need to add in a throw here that will handle an empty input + empty arguments
 {
   std::vector < std::string > words;
@@ -98,11 +135,9 @@ void Command::parseStr(std::string str) //need to add in a throw here that will 
   {
     this -> _arguments.push_back(words.front());
     words.erase(words.begin());
-    this -> _channelName = words.front();
-    if (this -> _channelName.at(0) != '#')
-      throw (std::runtime_error("Channelname has to start with #"));
+    this -> _channelName = checkChannel(words.front());
   } else {
-    this -> _channelName = words.front();
+    this -> _channelName = checkChannel(words.front());
     words.erase(words.begin());
     this -> _arguments.insert(_arguments.end(), words.begin(), words.end());
     if ((getCommand() != "PASS" && getCommand() != "NICK" && getCommand() != "JOIN" && getCommand() == "TOPIC" && getCommand() == "QUIT") && _arguments.empty())
@@ -144,8 +179,10 @@ void Command::parseCMD(std::string input, Client & client) {
     if (getCommand() == "PING" || getCommand() == "WHOIS")
       return;
     else if (getCommand() == "MODE") {
-      if (_channelName.at(0) != '#')
-        return;
+      if (this -> _channelName.at(0) != '#')
+      {
+        throw (std::runtime_error("Channelname has to start with #"));
+      }
       if (_arguments.at(0).at(0) == '+')
         addPrivileges(client);
       else if (_arguments.at(0).at(0) == '-')
