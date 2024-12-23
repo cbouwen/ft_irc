@@ -184,10 +184,13 @@ void    Command::parseCMD(std::string input, Client& client)
             recipient->sendMessageToClient(privMsg);        
             return;
         }
+		if (getCommand() == "NICK")
+        {
+			client.setNickname(_channelName, _server);
+            return ;
+        }
         if (_channelName.at(0) != '#')
             throw (std::runtime_error("Channelname has to start with #"));
-		if (getCommand() == "NICK")
-			client.setNickname(_channelName, _server);
 		else if (getCommand() == "JOIN")
 			joinChannel(client);
 		else if (getCommand() == "TOPIC")
